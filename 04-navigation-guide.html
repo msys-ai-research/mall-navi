@@ -190,7 +190,7 @@
           </div>
         </div>
         <p id="sel-desc" class="text-xs text-gray-500 mb-3 leading-relaxed">Global leader in athletic footwear and equipment</p>
-        <button onclick="goState('ROUTE_PLANNING')" class="w-full bg-primary-600 text-white font-semibold rounded-xl py-3 text-sm flex items-center justify-center gap-2 shadow-md active:bg-primary-700 transition">
+        <button onclick="goState('ACTIVE_NAV')" class="w-full bg-primary-600 text-white font-semibold rounded-xl py-3 text-sm flex items-center justify-center gap-2 shadow-md active:bg-primary-700 transition">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="3 11 22 2 13 21 11 13 3 11" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
           Navigate Here
         </button>
@@ -632,13 +632,22 @@ function goState(s,data){
       break;
     }
     case 'ACTIVE_NAV':{
-      const st=STORES[selectedStore];if(!currentRoute){goState('IDLE');return;}
+      const st=STORES[selectedStore];if(!st){goState('IDLE');return;}
+      // Compute route if not already set (skipping ROUTE_PLANNING)
+      if(!currentRoute){
+        currentRoute=findRoute(selectedStore);
+        if(!currentRoute){goState('IDLE');return;}
+        currentSteps=generateSteps(currentRoute,st.name);
+      }
+      const dv=VMAP[st.vertexId];
+      moveSvgGroup('dest-pin-g',dv.cx,dv.cy-10);el('dest-pin-g').style.display='';
       const meters=Math.round(currentRoute.totalDist/SVG_SCALE);
       const minutes=Math.max(1,Math.ceil(meters/1.4/60));
       el('nav-dest-name').textContent=st.name;el('nav-dest-detail').textContent=st.cat+' · '+currentSteps.length+' steps';
       el('nav-time').textContent='~'+minutes+' min';el('nav-dist').textContent=meters+' m';
       el('nav-progress').style.width='0%';el('nav-step-count').textContent='Step 1 of '+currentSteps.length;
       renderRoute(currentRoute.allVertices,'active');renderSteps(currentSteps);
+      document.querySelector(`[data-store="${selectedStore}"]`)?.classList.add('highlighted');
       activeStepIdx=1;updateStepUI();
       unhide('sheet-nav');setSheet(160);
       break;
@@ -694,7 +703,7 @@ function navToNearest(type){
     const r=dijkstra(USER_VERTEX,st.vertexId);
     if(r.totalDist<bestDist){bestDist=r.totalDist;best=key;}
   }
-  if(best){selectedStore=best;goState('ROUTE_PLANNING');}
+  if(best){selectedStore=best;goState('ACTIVE_NAV');}
 }
 
 
@@ -742,13 +751,48 @@ mapC.addEventListener('click',e=>{
 // ══════════════════════════════════════════════════
 const sheet=el('sheet'),handle=el('sheet-handle');
 let sTouchY=0,sStartH=0;
+
+// Min/max sheet heights per state
+function sheetBounds(){
+  const vh=window.innerHeight;
+  return {
+    IDLE:{min:0,max:0,dismiss:false},
+    STORE_SELECTED:{min:100,max:190,dismiss:true},
+    ROUTE_PLANNING:{min:160,max:Math.min(vh*0.5,380),dismiss:false},
+    ACTIVE_NAV:{min:120,max:Math.min(vh*0.7,500),dismiss:false},
+    ARRIVED:{min:200,max:300,dismiss:false}
+  };
+}
+function snapSheet(){
+  const b=sheetBounds()[currentState];if(!b)return;
+  const h=sheet.offsetHeight;
+  if(b.dismiss&&h<b.min*0.6){goState('IDLE');return}
+  // Snap to nearest bound
+  const snapTo=(h-b.min)<(b.max-h)?b.min:b.max;
+  setSheet(snapTo);
+}
+
 handle.addEventListener('touchstart',e=>{sTouchY=e.touches[0].pageY;sStartH=sheet.offsetHeight;sheet.style.transition='none'},{passive:true});
-handle.addEventListener('touchmove',e=>{const dy=sTouchY-e.touches[0].pageY;const h=Math.max(0,Math.min(sStartH+dy,window.innerHeight*.85));sheet.style.height=h+'px'},{passive:true});
-handle.addEventListener('touchend',()=>{sheet.style.transition='';if(sheet.offsetHeight<80&&currentState==='STORE_SELECTED')goState('IDLE')});
+handle.addEventListener('touchmove',e=>{
+  const b=sheetBounds()[currentState];if(!b)return;
+  const dy=sTouchY-e.touches[0].pageY;
+  const maxH=b.dismiss?b.max:b.max;
+  const minH=b.dismiss?0:b.min;
+  const h=Math.max(minH,Math.min(sStartH+dy,maxH));
+  sheet.style.height=h+'px';
+},{passive:true});
+handle.addEventListener('touchend',()=>{sheet.style.transition='';snapSheet()});
 handle.addEventListener('mousedown',e=>{
   e.preventDefault();sTouchY=e.pageY;sStartH=sheet.offsetHeight;sheet.style.transition='none';
-  const onMove=ev=>{const dy=sTouchY-ev.pageY;const h=Math.max(0,Math.min(sStartH+dy,window.innerHeight*.85));sheet.style.height=h+'px'};
-  const onUp=()=>{sheet.style.transition='';if(sheet.offsetHeight<80&&currentState==='STORE_SELECTED')goState('IDLE');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp)};
+  const onMove=ev=>{
+    const b=sheetBounds()[currentState];if(!b)return;
+    const dy=sTouchY-ev.pageY;
+    const maxH=b.max;
+    const minH=b.dismiss?0:b.min;
+    const h=Math.max(minH,Math.min(sStartH+dy,maxH));
+    sheet.style.height=h+'px';
+  };
+  const onUp=()=>{sheet.style.transition='';snapSheet();document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp)};
   document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
 });
 
@@ -775,7 +819,7 @@ function filterStores(query){
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="shrink-0 text-gray-300"><polygon points="3 11 22 2 13 21 11 13 3 11" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
     </button>`).join('');
 }
-function quickNav(key){toggleQuickSearch();selectedStore=key;goState('ROUTE_PLANNING')}
+function quickNav(key){toggleQuickSearch();selectedStore=key;goState('ACTIVE_NAV')}
 
 
 // ══════════════════════════════════════════════════
@@ -790,7 +834,7 @@ if(toParam){
   const PARAM_MAP={'help-desk':'malloffice','parking':'entrance'};
   const mapped=PARAM_MAP[toParam]||toParam;
   if(mapped==='mother-baby'||mapped==='restroom'){navToNearest('restroom')}
-  else if(STORES[mapped]){selectedStore=mapped;goState('ROUTE_PLANNING')}
+  else if(STORES[mapped]){selectedStore=mapped;goState('ACTIVE_NAV')}
 }
 </script>
 
