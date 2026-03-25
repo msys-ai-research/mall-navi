@@ -53,10 +53,25 @@
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12.5 15l-5-5 5-5" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <p class="flex-1 text-sm font-bold text-gray-900 text-center truncate">Greenfield Mall</p>
-      <a href="02-search-results.html" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 hover:bg-gray-200 transition">
+      <button onclick="toggleQuickSearch()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 hover:bg-gray-200 transition">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#374151" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg>
-      </a>
+      </button>
     </div>
+  </div>
+
+  <!-- QUICK SEARCH OVERLAY -->
+  <div id="quick-search" class="hidden absolute top-0 left-0 right-0 z-50">
+    <div class="bg-white shadow-lg rounded-b-2xl pt-12 pb-2 px-3">
+      <div class="flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="11" cy="11" r="8" stroke="#9ca3af" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="qs-input" type="text" placeholder="Search stores..." class="flex-1 bg-transparent text-sm outline-none text-gray-900 placeholder-gray-400" oninput="filterStores(this.value)" autocomplete="off"/>
+        <button onclick="toggleQuickSearch()" class="text-gray-400 hover:text-gray-600 transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div id="qs-results" class="max-h-[50vh] overflow-y-auto mt-1"></div>
+    </div>
+    <div class="fixed inset-0 bg-black/20 -z-10" onclick="toggleQuickSearch()"></div>
   </div>
 
   <!-- HEADER 2: ROUTE PLANNER BAR -->
@@ -576,13 +591,15 @@ function goState(s,data){
   hide('sheet-store');hide('sheet-plan');hide('sheet-nav');hide('sheet-arrived');
   el('arrived-check-g').style.display='none';
   document.querySelectorAll('.store-marker').forEach(m=>m.classList.remove('highlighted'));
+  // Always show "You are here" blue dot at user position
+  const _uv=VMAP[USER_VERTEX];moveSvgGroup('blue-dot-g',_uv.cx,_uv.cy);el('blue-dot-g').style.display='';
   el('blue-pulse').classList.toggle('pulse-ring',s==='ACTIVE_NAV');
   el('blue-pulse').classList.toggle('pulse-static',s!=='ACTIVE_NAV');
 
   switch(s){
     case 'IDLE':
       setSheet(0);selectedStore=null;currentRoute=null;currentSteps=[];
-      clearRoute();el('blue-dot-g').style.display='none';el('dest-pin-g').style.display='none';
+      clearRoute();el('dest-pin-g').style.display='none';
       renderStoreMarkers();
       break;
     case 'STORE_SELECTED':
@@ -595,7 +612,7 @@ function goState(s,data){
         document.querySelector(`[data-store="${data}"]`)?.classList.add('highlighted');
       }
       unhide('sheet-store');setSheet(190);
-      el('blue-dot-g').style.display='none';el('dest-pin-g').style.display='none';clearRoute();
+      el('dest-pin-g').style.display='none';clearRoute();
       break;
     case 'ROUTE_PLANNING':{
       const st=STORES[selectedStore];if(!st){goState('IDLE');return;}
@@ -607,8 +624,7 @@ function goState(s,data){
       const minutes=Math.max(1,Math.ceil(meters/1.4/60));
       el('plan-summary').textContent=`~${minutes} min · ${meters} m`;
       el('plan-detail').textContent=`${currentSteps.length} steps · Shortest route`;
-      const uv=VMAP[USER_VERTEX],dv=VMAP[st.vertexId];
-      moveSvgGroup('blue-dot-g',uv.cx,uv.cy);el('blue-dot-g').style.display='';
+      const dv=VMAP[st.vertexId];
       moveSvgGroup('dest-pin-g',dv.cx,dv.cy-10);el('dest-pin-g').style.display='';
       renderRoute(currentRoute.allVertices,'preview');
       document.querySelector(`[data-store="${selectedStore}"]`)?.classList.add('highlighted');
@@ -631,7 +647,7 @@ function goState(s,data){
       const st=STORES[selectedStore];
       el('arrived-info').textContent=st.name+' · '+st.cat;
       el('nav-progress').style.width='100%';
-      clearRoute();el('blue-dot-g').style.display='none';el('dest-pin-g').style.display='none';
+      clearRoute();el('dest-pin-g').style.display='none';
       const dv=VMAP[st.vertexId];moveSvgGroup('arrived-check-g',dv.cx,dv.cy-10);
       el('arrived-check-g').style.display='';
       unhide('sheet-arrived');setSheet(260);
@@ -729,6 +745,37 @@ let sTouchY=0,sStartH=0;
 handle.addEventListener('touchstart',e=>{sTouchY=e.touches[0].pageY;sStartH=sheet.offsetHeight;sheet.style.transition='none'},{passive:true});
 handle.addEventListener('touchmove',e=>{const dy=sTouchY-e.touches[0].pageY;const h=Math.max(0,Math.min(sStartH+dy,window.innerHeight*.85));sheet.style.height=h+'px'},{passive:true});
 handle.addEventListener('touchend',()=>{sheet.style.transition='';if(sheet.offsetHeight<80&&currentState==='STORE_SELECTED')goState('IDLE')});
+handle.addEventListener('mousedown',e=>{
+  e.preventDefault();sTouchY=e.pageY;sStartH=sheet.offsetHeight;sheet.style.transition='none';
+  const onMove=ev=>{const dy=sTouchY-ev.pageY;const h=Math.max(0,Math.min(sStartH+dy,window.innerHeight*.85));sheet.style.height=h+'px'};
+  const onUp=()=>{sheet.style.transition='';if(sheet.offsetHeight<80&&currentState==='STORE_SELECTED')goState('IDLE');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp)};
+  document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
+});
+
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+//  QUICK SEARCH
+// ══════════════════════════════════════════════════
+function toggleQuickSearch(){
+  const qs=el('quick-search');qs.classList.toggle('hidden');
+  if(!qs.classList.contains('hidden')){el('qs-input').value='';el('qs-input').focus();filterStores('')}
+}
+function filterStores(query){
+  const c=el('qs-results');const q=query.toLowerCase().trim();
+  const entries=Object.entries(STORES).filter(([k,s])=>s.cat!=='Entrance')
+    .filter(([k,s])=>!q||s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q));
+  if(!entries.length){c.innerHTML='<p class="text-sm text-gray-400 text-center py-4">No stores found</p>';return}
+  c.innerHTML=entries.slice(0,8).map(([key,s])=>
+    `<button onclick="quickNav('${key}')" class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-xl transition text-left">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${s.logoBg}"><span class="text-white text-xs font-bold">${s.logo}</span></div>
+      <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900 truncate">${s.name}</p><p class="text-[11px] text-gray-400">${s.cat}</p></div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="shrink-0 text-gray-300"><polygon points="3 11 22 2 13 21 11 13 3 11" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+    </button>`).join('');
+}
+function quickNav(key){toggleQuickSearch();selectedStore=key;goState('ROUTE_PLANNING')}
 
 
 // ══════════════════════════════════════════════════
@@ -736,6 +783,15 @@ handle.addEventListener('touchend',()=>{sheet.style.transition='';if(sheet.offse
 // ══════════════════════════════════════════════════
 renderStoreMarkers();
 goState('IDLE');
+
+// Handle ?to= URL parameter for deep-linking from other pages
+const toParam=new URLSearchParams(window.location.search).get('to');
+if(toParam){
+  const PARAM_MAP={'help-desk':'malloffice','parking':'entrance'};
+  const mapped=PARAM_MAP[toParam]||toParam;
+  if(mapped==='mother-baby'||mapped==='restroom'){navToNearest('restroom')}
+  else if(STORES[mapped]){selectedStore=mapped;goState('ROUTE_PLANNING')}
+}
 </script>
 
 <!-- Page Navigator -->
