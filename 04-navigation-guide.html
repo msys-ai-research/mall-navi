@@ -181,7 +181,8 @@
       <!-- Store Selected -->
       <div id="sheet-store" class="hidden px-4 pb-6">
         <div class="flex items-center gap-3 mb-1">
-          <div id="sel-logo-bg" class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:#111">
+          <div id="sel-logo-bg" class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 overflow-hidden" style="background:#111">
+            <img id="sel-logo-img" class="w-full h-full object-cover hidden" src="" alt=""/>
             <span id="sel-logo" class="text-white font-bold text-lg">N</span>
           </div>
           <div class="flex-1">
@@ -281,39 +282,40 @@
 // ══════════════════════════════════════════════════
 //  STORE & GRAPH DATA (from KnotzerIO/indoor-wayfinder)
 // ══════════════════════════════════════════════════
+const LOGO_DIR = 'assets/logos/';
 const STORES = {
-  zara:       {name:'Zara',              cat:'Fashion',       logo:'Z',  logoBg:'#111827', desc:'Latest trends in apparel and accessories', vertexId:'v3'},
-  mcshark:    {name:'McShark',           cat:'Electronics',   logo:'M',  logoBg:'#dc2626', desc:'Specializing in Apple products and accessories', vertexId:'v4'},
-  nike:       {name:'Nike',              cat:'Fashion',       logo:'N',  logoBg:'#111827', desc:'Global leader in athletic footwear and equipment', vertexId:'v5'},
-  adidas:     {name:'Adidas',            cat:'Fashion',       logo:'A',  logoBg:'#111827', desc:'Athletic wear and performance gear', vertexId:'v6'},
-  primark:    {name:'Primark',           cat:'Retail',        logo:'P',  logoBg:'#0ea5e9', desc:'Affordable fashion for the whole family', vertexId:'v7'},
-  svarovski:  {name:'Svarovski',         cat:'Luxury',        logo:'S',  logoBg:'#7c3aed', desc:'Fine crystal jewelry and accessories', vertexId:'v8'},
-  hm:         {name:'H&M',              cat:'Fashion',       logo:'H',  logoBg:'#dc2626', desc:'Fashion and quality at the best price', vertexId:'v9'},
-  gucci:      {name:'Gucci',             cat:'Luxury',        logo:'G',  logoBg:'#166534', desc:'Italian luxury fashion for trendsetters', vertexId:'v10'},
-  louisv:     {name:'Louis Vuitton',     cat:'Luxury',        logo:'LV', logoBg:'#78350f', desc:'High-end bags, luggage, and accessories', vertexId:'v11'},
-  kfc:        {name:'KFC',               cat:'Food',          logo:'K',  logoBg:'#dc2626', desc:'Crispy fried chicken and sides', vertexId:'v12'},
-  mcdonalds:  {name:"McDonald's",        cat:'Food',          logo:'M',  logoBg:'#eab308', desc:'Classic fast-food chain for burgers and fries', vertexId:'v13'},
-  tobacco:    {name:'Tobacco Shop',      cat:'Retail',        logo:'T',  logoBg:'#78350f', desc:'Tobacco products and smoking accessories', vertexId:'v14'},
-  petsmart:   {name:'PetSmart',          cat:'Retail',        logo:'P',  logoBg:'#dc2626', desc:"Everything for your pet's needs", vertexId:'v15'},
-  barbershop: {name:'Barbershop',        cat:'Services',      logo:'B',  logoBg:'#374151', desc:'Classic and contemporary haircuts', vertexId:'v16'},
-  sephora:    {name:'Sephora',           cat:'Retail',        logo:'S',  logoBg:'#111827', desc:'Skincare, cosmetics, and fragrances', vertexId:'v17'},
-  mediamarkt: {name:'MediaMarkt',        cat:'Electronics',   logo:'M',  logoBg:'#dc2626', desc:'Latest in electronics and appliances', vertexId:'v18'},
-  malloffice: {name:'Mall Office',       cat:'Services',      logo:'O',  logoBg:'#374151', desc:'Mall inquiries and services', vertexId:'v25'},
-  entrance:   {name:'Entrance',          cat:'Entrance',      logo:'E',  logoBg:'#166534', desc:'Main mall entrance', vertexId:'v34'},
-  northwc:    {name:'North Wing Toilet',  cat:'Sanitary',      logo:'WC', logoBg:'#ec4899', desc:'Restroom facilities', vertexId:'v42'},
-  seveneleven:{name:'7-Eleven',          cat:'Retail',        logo:'7',  logoBg:'#166534', desc:'Convenience store', vertexId:'v43'},
-  victoria:   {name:"Victoria's Secret", cat:'Fashion',       logo:'VS', logoBg:'#ec4899', desc:'Lingerie, sleepwear, and beauty', vertexId:'v44'},
-  pandora:    {name:'Pandora',           cat:'Luxury',        logo:'P',  logoBg:'#ec4899', desc:'Charm bracelets, rings, and more', vertexId:'v45'},
-  footlocker: {name:'Foot Locker',       cat:'Fashion',       logo:'FL', logoBg:'#111827', desc:'Athletic footwear and apparel', vertexId:'v46'},
-  pharmacy:   {name:'Pharmacy',          cat:'Retail',        logo:'+',  logoBg:'#166534', desc:'Prescription drugs and health products', vertexId:'v47'},
-  gamestop:   {name:'GameStop',          cat:'Electronics',   logo:'G',  logoBg:'#dc2626', desc:'Video games and gaming merchandise', vertexId:'v48'},
-  claires:    {name:"Claire's",          cat:'Fashion',       logo:'C',  logoBg:'#ec4899', desc:'Accessories and jewelry', vertexId:'v49'},
-  eastwc:     {name:'East Wing Toilet',  cat:'Sanitary',      logo:'WC', logoBg:'#ec4899', desc:'Restroom facilities', vertexId:'v50'},
-  chanel:     {name:'Chanel',            cat:'Luxury',        logo:'C',  logoBg:'#111827', desc:'Iconic fashion, fragrance, and accessories', vertexId:'v59'},
-  rolex:      {name:'Rolex',             cat:'Luxury',        logo:'R',  logoBg:'#166534', desc:'Swiss luxury watches', vertexId:'v60'},
-  starbucks:  {name:'Starbucks',         cat:'Food',          logo:'S',  logoBg:'#166534', desc:'Your favorite brews and snacks', vertexId:'v72'},
-  levis:      {name:"Levi's",            cat:'Fashion',       logo:'L',  logoBg:'#dc2626', desc:'Classic American denim and casual wear', vertexId:'v74'},
-  vans:       {name:'Vans',              cat:'Fashion',       logo:'V',  logoBg:'#111827', desc:'Skateboarding footwear and apparel', vertexId:'v75'}
+  zara:       {name:'Zara',              cat:'Fashion',       logo:'Z',  logoBg:'#111827', logoImg:'zara.png',        desc:'Latest trends in apparel and accessories', vertexId:'v3'},
+  mcshark:    {name:'McShark',           cat:'Electronics',   logo:'M',  logoBg:'#dc2626', logoImg:'mcshark.png',     desc:'Specializing in Apple products and accessories', vertexId:'v4'},
+  nike:       {name:'Nike',              cat:'Fashion',       logo:'N',  logoBg:'#111827', logoImg:'nike.png',        desc:'Global leader in athletic footwear and equipment', vertexId:'v5'},
+  adidas:     {name:'Adidas',            cat:'Fashion',       logo:'A',  logoBg:'#111827', logoImg:'adidas.png',      desc:'Athletic wear and performance gear', vertexId:'v6'},
+  primark:    {name:'Primark',           cat:'Retail',        logo:'P',  logoBg:'#0ea5e9', logoImg:'primark.png',     desc:'Affordable fashion for the whole family', vertexId:'v7'},
+  svarovski:  {name:'Svarovski',         cat:'Luxury',        logo:'S',  logoBg:'#7c3aed', logoImg:'swarovski.png',   desc:'Fine crystal jewelry and accessories', vertexId:'v8'},
+  hm:         {name:'H&M',              cat:'Fashion',       logo:'H',  logoBg:'#dc2626', logoImg:'hm.png',          desc:'Fashion and quality at the best price', vertexId:'v9'},
+  gucci:      {name:'Gucci',             cat:'Luxury',        logo:'G',  logoBg:'#166534', logoImg:'gucci.png',       desc:'Italian luxury fashion for trendsetters', vertexId:'v10'},
+  louisv:     {name:'Louis Vuitton',     cat:'Luxury',        logo:'LV', logoBg:'#78350f', logoImg:'louisvuitton.png',desc:'High-end bags, luggage, and accessories', vertexId:'v11'},
+  kfc:        {name:'KFC',               cat:'Food',          logo:'K',  logoBg:'#dc2626', logoImg:'kfc.png',         desc:'Crispy fried chicken and sides', vertexId:'v12'},
+  mcdonalds:  {name:"McDonald's",        cat:'Food',          logo:'M',  logoBg:'#eab308', logoImg:'mcdonalds.png',   desc:'Classic fast-food chain for burgers and fries', vertexId:'v13'},
+  tobacco:    {name:'Tobacco Shop',      cat:'Retail',        logo:'T',  logoBg:'#78350f', logoImg:null,              desc:'Tobacco products and smoking accessories', vertexId:'v14'},
+  petsmart:   {name:'PetSmart',          cat:'Retail',        logo:'P',  logoBg:'#dc2626', logoImg:'petsmart.png',    desc:"Everything for your pet's needs", vertexId:'v15'},
+  barbershop: {name:'Barbershop',        cat:'Services',      logo:'B',  logoBg:'#374151', logoImg:null,              desc:'Classic and contemporary haircuts', vertexId:'v16'},
+  sephora:    {name:'Sephora',           cat:'Retail',        logo:'S',  logoBg:'#111827', logoImg:'sephora.png',     desc:'Skincare, cosmetics, and fragrances', vertexId:'v17'},
+  mediamarkt: {name:'MediaMarkt',        cat:'Electronics',   logo:'M',  logoBg:'#dc2626', logoImg:'mediamarkt.png',  desc:'Latest in electronics and appliances', vertexId:'v18'},
+  malloffice: {name:'Mall Office',       cat:'Services',      logo:'O',  logoBg:'#374151', logoImg:null,              desc:'Mall inquiries and services', vertexId:'v25'},
+  entrance:   {name:'Entrance',          cat:'Entrance',      logo:'E',  logoBg:'#166534', logoImg:null,              desc:'Main mall entrance', vertexId:'v34'},
+  northwc:    {name:'North Wing Toilet',  cat:'Sanitary',      logo:'WC', logoBg:'#ec4899', logoImg:null,              desc:'Restroom facilities', vertexId:'v42'},
+  seveneleven:{name:'7-Eleven',          cat:'Retail',        logo:'7',  logoBg:'#166534', logoImg:'seveneleven.png', desc:'Convenience store', vertexId:'v43'},
+  victoria:   {name:"Victoria's Secret", cat:'Fashion',       logo:'VS', logoBg:'#ec4899', logoImg:'victoria.png',    desc:'Lingerie, sleepwear, and beauty', vertexId:'v44'},
+  pandora:    {name:'Pandora',           cat:'Luxury',        logo:'P',  logoBg:'#ec4899', logoImg:'pandora.png',     desc:'Charm bracelets, rings, and more', vertexId:'v45'},
+  footlocker: {name:'Foot Locker',       cat:'Fashion',       logo:'FL', logoBg:'#111827', logoImg:'footlocker.png',  desc:'Athletic footwear and apparel', vertexId:'v46'},
+  pharmacy:   {name:'Pharmacy',          cat:'Retail',        logo:'+',  logoBg:'#166534', logoImg:null,              desc:'Prescription drugs and health products', vertexId:'v47'},
+  gamestop:   {name:'GameStop',          cat:'Electronics',   logo:'G',  logoBg:'#dc2626', logoImg:'gamestop.png',    desc:'Video games and gaming merchandise', vertexId:'v48'},
+  claires:    {name:"Claire's",          cat:'Fashion',       logo:'C',  logoBg:'#ec4899', logoImg:'claires.png',     desc:'Accessories and jewelry', vertexId:'v49'},
+  eastwc:     {name:'East Wing Toilet',  cat:'Sanitary',      logo:'WC', logoBg:'#ec4899', logoImg:null,              desc:'Restroom facilities', vertexId:'v50'},
+  chanel:     {name:'Chanel',            cat:'Luxury',        logo:'C',  logoBg:'#111827', logoImg:'chanel.png',      desc:'Iconic fashion, fragrance, and accessories', vertexId:'v59'},
+  rolex:      {name:'Rolex',             cat:'Luxury',        logo:'R',  logoBg:'#166534', logoImg:'rolex.png',       desc:'Swiss luxury watches', vertexId:'v60'},
+  starbucks:  {name:'Starbucks',         cat:'Food',          logo:'S',  logoBg:'#166534', logoImg:'starbucks.png',   desc:'Your favorite brews and snacks', vertexId:'v72'},
+  levis:      {name:"Levi's",            cat:'Fashion',       logo:'L',  logoBg:'#dc2626', logoImg:'levis.png',       desc:'Classic American denim and casual wear', vertexId:'v74'},
+  vans:       {name:'Vans',              cat:'Fashion',       logo:'V',  logoBg:'#111827', logoImg:'vans.png',        desc:'Skateboarding footwear and apparel', vertexId:'v75'}
 };
 
 const CAT_COLORS = {
@@ -495,19 +497,39 @@ function moveSvgGroup(gId, cx, cy) {
 // ══════════════════════════════════════════════════
 function renderStoreMarkers() {
   const g = el('store-markers-g'); g.innerHTML = '';
+  const R = 16;
   for(const [key, s] of Object.entries(STORES)) {
     const v = VMAP[s.vertexId]; if(!v) continue;
     const mg = svgEl('g'); mg.setAttribute('class','store-marker'); mg.setAttribute('data-store',key);
     mg.onclick = () => selectStore(key);
+    // Background circle
     const c = svgEl('circle');
-    c.setAttribute('cx',v.cx);c.setAttribute('cy',v.cy);c.setAttribute('r','16');
-    c.setAttribute('fill', CAT_COLORS[s.cat]||'#6b7280');c.setAttribute('opacity','0.35');
+    c.setAttribute('cx',v.cx);c.setAttribute('cy',v.cy);c.setAttribute('r',R);
+    c.setAttribute('fill','white');c.setAttribute('stroke',CAT_COLORS[s.cat]||'#6b7280');
+    c.setAttribute('stroke-width','2');c.setAttribute('opacity','0.9');
     mg.appendChild(c);
-    const t = svgEl('text');
-    t.setAttribute('x',v.cx);t.setAttribute('y',v.cy+4);t.setAttribute('text-anchor','middle');
-    t.setAttribute('font-size','11');t.setAttribute('font-weight','700');t.setAttribute('fill','#1f2937');
-    t.setAttribute('pointer-events','none');t.textContent=s.logo;
-    mg.appendChild(t);
+    if(s.logoImg) {
+      // Clip circle for logo image
+      const clipId='clip-'+key;
+      const defs=svgEl('defs');
+      const cp=svgEl('clipPath');cp.setAttribute('id',clipId);
+      const cc=svgEl('circle');cc.setAttribute('cx',v.cx);cc.setAttribute('cy',v.cy);cc.setAttribute('r',R-2);
+      cp.appendChild(cc);defs.appendChild(cp);mg.appendChild(defs);
+      const img=svgEl('image');
+      img.setAttribute('href',LOGO_DIR+s.logoImg);
+      img.setAttribute('x',v.cx-R+2);img.setAttribute('y',v.cy-R+2);
+      img.setAttribute('width',(R-2)*2);img.setAttribute('height',(R-2)*2);
+      img.setAttribute('clip-path',`url(#${clipId})`);
+      img.setAttribute('pointer-events','none');img.setAttribute('preserveAspectRatio','xMidYMid slice');
+      mg.appendChild(img);
+    } else {
+      // Text fallback for generic stores
+      const t = svgEl('text');
+      t.setAttribute('x',v.cx);t.setAttribute('y',v.cy+4);t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size','11');t.setAttribute('font-weight','700');t.setAttribute('fill','#1f2937');
+      t.setAttribute('pointer-events','none');t.textContent=s.logo;
+      mg.appendChild(t);
+    }
     g.appendChild(mg);
   }
 }
@@ -606,9 +628,15 @@ function goState(s,data){
       if(data){
         selectedStore=data;const st=STORES[data];
         el('sel-name').textContent=st.name;el('sel-cat').textContent=st.cat;
-        el('sel-desc').textContent=st.desc;el('sel-logo').textContent=st.logo;
-        el('sel-logo').style.color=st.logoBg==='#eab308'?'#111':'white';
-        el('sel-logo-bg').style.backgroundColor=st.logoBg;
+        el('sel-desc').textContent=st.desc;
+        if(st.logoImg){
+          el('sel-logo-img').src=LOGO_DIR+st.logoImg;el('sel-logo-img').classList.remove('hidden');el('sel-logo').classList.add('hidden');
+          el('sel-logo-bg').style.backgroundColor='white';
+        } else {
+          el('sel-logo-img').classList.add('hidden');el('sel-logo').classList.remove('hidden');
+          el('sel-logo').textContent=st.logo;el('sel-logo').style.color=st.logoBg==='#eab308'?'#111':'white';
+          el('sel-logo-bg').style.backgroundColor=st.logoBg;
+        }
         document.querySelector(`[data-store="${data}"]`)?.classList.add('highlighted');
       }
       unhide('sheet-store');setSheet(190);
@@ -812,12 +840,16 @@ function filterStores(query){
   const entries=Object.entries(STORES).filter(([k,s])=>s.cat!=='Entrance')
     .filter(([k,s])=>!q||s.name.toLowerCase().includes(q)||s.cat.toLowerCase().includes(q));
   if(!entries.length){c.innerHTML='<p class="text-sm text-gray-400 text-center py-4">No stores found</p>';return}
-  c.innerHTML=entries.slice(0,8).map(([key,s])=>
-    `<button onclick="quickNav('${key}')" class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-xl transition text-left">
-      <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${s.logoBg}"><span class="text-white text-xs font-bold">${s.logo}</span></div>
+  c.innerHTML=entries.slice(0,8).map(([key,s])=>{
+    const logoHtml=s.logoImg
+      ?`<div class="w-8 h-8 rounded-lg shrink-0 overflow-hidden bg-white border border-gray-100"><img src="${LOGO_DIR}${s.logoImg}" class="w-full h-full object-cover" alt="${s.name}"/></div>`
+      :`<div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:${s.logoBg}"><span class="text-white text-xs font-bold">${s.logo}</span></div>`;
+    return `<button onclick="quickNav('${key}')" class="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-xl transition text-left">
+      ${logoHtml}
       <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900 truncate">${s.name}</p><p class="text-[11px] text-gray-400">${s.cat}</p></div>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="shrink-0 text-gray-300"><polygon points="3 11 22 2 13 21 11 13 3 11" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-    </button>`).join('');
+    </button>`;
+  }).join('');
 }
 function quickNav(key){toggleQuickSearch();selectedStore=key;goState('ACTIVE_NAV')}
 
