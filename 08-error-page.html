@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MallNav — Error</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#2E7D32',
+              50:  '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#2E7D32',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-start justify-center">
+
+  <!-- MOBILE SHELL -->
+  <div id="app-shell" class="w-full max-w-[430px] mx-auto min-h-screen bg-gray-50 relative flex flex-col shadow-xl overflow-hidden">
+
+    <!-- ── STATUS BAR ── -->
+    <div class="bg-white shadow-sm">
+      <div class="flex items-center justify-between px-5 pt-3 pb-3">
+        <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+          <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CENTERED ERROR CONTENT ── -->
+    <div class="flex-1 flex flex-col items-center justify-center px-8 py-12">
+
+      <!-- Error Illustration - Lost Map Pin -->
+      <div class="w-32 h-32 rounded-full bg-red-50 flex items-center justify-center">
+        <svg class="w-16 h-16 text-red-400" viewBox="0 0 64 64" fill="none">
+          <!-- Location pin body -->
+          <path d="M32 4C21.5 4 13 12.5 13 23c0 14 19 33 19 33s19-19 19-33C51 12.5 42.5 4 32 4z" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- X mark inside pin -->
+          <path d="M26 17l12 12M38 17L26 29" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Error Title -->
+      <h1 class="text-xl font-bold text-gray-900 text-center mt-6">Oops, we couldn't find your location</h1>
+
+      <!-- Error Message -->
+      <p class="text-gray-500 text-center mt-2 text-sm leading-relaxed">Please scan a valid MallNav QR code posted in the mall.</p>
+
+      <!-- QR Scan Illustration -->
+      <div class="w-48 h-48 mt-8 bg-gray-100 rounded-2xl flex items-center justify-center">
+        <svg class="w-32 h-32 text-gray-400" viewBox="0 0 128 128" fill="none">
+          <!-- Phone outline -->
+          <rect x="16" y="8" width="48" height="80" rx="6" stroke="currentColor" stroke-width="2.5" fill="white"/>
+          <!-- Phone screen -->
+          <rect x="20" y="16" width="40" height="60" rx="2" fill="currentColor" opacity="0.08"/>
+          <!-- Phone home button -->
+          <circle cx="40" cy="82" r="2.5" fill="currentColor" opacity="0.3"/>
+          <!-- Scan lines from phone -->
+          <line x1="60" y1="36" x2="72" y2="30" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>
+          <line x1="60" y1="46" x2="72" y2="46" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>
+          <line x1="60" y1="56" x2="72" y2="62" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" opacity="0.5"/>
+          <!-- QR Code -->
+          <rect x="76" y="28" width="36" height="36" rx="4" stroke="currentColor" stroke-width="2" fill="white"/>
+          <!-- QR pattern -->
+          <rect x="80" y="32" width="10" height="10" rx="1" fill="currentColor" opacity="0.6"/>
+          <rect x="98" y="32" width="10" height="10" rx="1" fill="currentColor" opacity="0.6"/>
+          <rect x="80" y="50" width="10" height="10" rx="1" fill="currentColor" opacity="0.6"/>
+          <rect x="93" y="45" width="4" height="4" fill="currentColor" opacity="0.4"/>
+          <rect x="100" y="50" width="4" height="4" fill="currentColor" opacity="0.4"/>
+          <rect x="93" y="55" width="4" height="4" fill="currentColor" opacity="0.4"/>
+          <rect x="100" y="55" width="4" height="4" fill="currentColor" opacity="0.4"/>
+          <!-- QR finder pattern details -->
+          <rect x="82" y="34" width="6" height="6" rx="0.5" fill="white"/>
+          <rect x="83.5" y="35.5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.6"/>
+          <rect x="100" y="34" width="6" height="6" rx="0.5" fill="white"/>
+          <rect x="101.5" y="35.5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.6"/>
+          <rect x="82" y="52" width="6" height="6" rx="0.5" fill="white"/>
+          <rect x="83.5" y="53.5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <!-- Retry Button -->
+      <button class="mt-8 bg-primary-600 text-white font-semibold rounded-xl px-8 py-3 hover:bg-primary-700 transition-colors">Try Again</button>
+
+      <!-- Help Text -->
+      <p class="mt-4 text-sm text-gray-400 text-center">If the problem persists, ask mall staff for assistance.</p>
+
+    </div>
+
+  </div>
+  <!-- END MOBILE SHELL -->
+
+<!-- Page Navigator -->
+<div id="page-nav" class="fixed top-4 right-4 z-[9999]">
+  <button onclick="document.getElementById('nav-panel').classList.toggle('hidden')"
+          class="w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  <div id="nav-panel" class="hidden mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-56 overflow-hidden">
+    <div class="px-3 py-2 bg-gray-50 border-b border-gray-200">
+      <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Screen Navigator</span>
+    </div>
+    <nav class="py-1 max-h-[70vh] overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-b border-gray-100">
+        <span class="w-5 h-5 rounded bg-gray-800 text-white text-xs flex items-center justify-center font-bold">~</span> Index
+      </a>
+      <a href="shared-layout.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-purple-500 text-white text-xs flex items-center justify-center font-bold">DS</span> Design System
+      </a>
+      <a href="01-home.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">01</span> Home
+      </a>
+      <a href="02-search-results.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">02</span> Search Results
+      </a>
+      <a href="03-store-profile.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">03</span> Store Profile
+      </a>
+      <a href="04-navigation-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-blue-500 text-white text-xs flex items-center justify-center font-bold">04</span> Navigation Guide
+      </a>
+      <a href="05-restroom-finder.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-amber-500 text-white text-xs flex items-center justify-center font-bold">05</span> Restroom Finder
+      </a>
+      <a href="07-mall-survey.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-gray-500 text-white text-xs flex items-center justify-center font-bold">07</span> Mall Survey
+      </a>
+      <a href="08-error-page.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-red-500 text-white text-xs flex items-center justify-center font-bold">08</span> Error Page
+      </a>
+    </nav>
+    <div class="px-3 py-2 bg-gray-50 border-t border-gray-200 flex justify-between text-xs text-gray-400">
+      <span>MallNav v2.0</span><span>Design Studies</span>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('#nav-panel nav a').forEach(a => {
+    if (a.getAttribute('href') === location.pathname.split('/').pop()) {
+      a.classList.add('bg-emerald-50', 'text-emerald-700', 'font-medium');
+      a.classList.remove('text-gray-600');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('page-nav').contains(e.target)) {
+      document.getElementById('nav-panel').classList.add('hidden');
+    }
+  });
+</script>
+
+</body>
+</html>

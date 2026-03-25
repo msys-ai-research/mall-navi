@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MallNav — All Stores</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { primary: { DEFAULT:'#2E7D32',50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',400:'#4ade80',500:'#22c55e',600:'#2E7D32',700:'#15803d',800:'#166534',900:'#14532d' }}}}
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar{display:none} .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+    #services-sheet{transition:transform .35s cubic-bezier(.4,0,.2,1)} #services-backdrop{transition:opacity .3s ease}
+    #filter-sheet{transition:transform .35s cubic-bezier(.4,0,.2,1)} #filter-backdrop{transition:opacity .3s ease}
+    .fab-btn{background:linear-gradient(135deg,#2E7D32 0%,#43a047 100%);box-shadow:0 4px 14px rgba(46,125,50,.4),0 1px 3px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.15);transition:transform .2s,box-shadow .2s}
+    .fab-btn:active{transform:translateX(-50%) scale(.92);box-shadow:0 2px 8px rgba(46,125,50,.3),0 1px 2px rgba(0,0,0,.1)}
+    .fab-btn::after{content:'';position:absolute;inset:-4px;border-radius:9999px;border:2px solid rgba(46,125,50,.15);pointer-events:none}
+    .store-card{transition:transform .15s ease} .store-card:active{transform:scale(.97)}
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-start justify-center">
+
+  <div id="app-shell" class="w-full max-w-[430px] mx-auto min-h-screen bg-gray-50 relative flex flex-col shadow-xl overflow-hidden">
+
+    <!-- ── STICKY HEADER ── -->
+    <div class="sticky top-0 z-40 bg-white shadow-sm">
+      <div class="flex items-center justify-between px-5 pt-3 pb-1">
+        <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+          <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <!-- Search + filter -->
+      <div class="px-4 pb-2 pt-1 flex items-center gap-2">
+        <a href="01-home.html" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition shrink-0 -ml-1">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15l-5-5 5-5" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <div class="flex-1 relative">
+          <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#9ca3af" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <input id="search-input" type="text"
+            class="w-full bg-gray-100 rounded-full pl-9 pr-8 py-2.5 text-sm text-gray-800 outline-none focus:ring-2 focus:ring-primary-200 focus:bg-white transition placeholder-gray-400 caret-primary-600"
+            placeholder="Search stores..." />
+          <button id="clear-btn" class="absolute inset-y-0 right-2 flex items-center hidden" onclick="clearSearch()">
+            <div class="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center hover:bg-gray-400 transition">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2.5 2.5l5 5M7.5 2.5l-5 5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+          </button>
+        </div>
+        <button onclick="toggleFilter()" id="filter-btn" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center shrink-0 hover:bg-gray-200 transition relative">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><line x1="4" y1="6" x2="20" y2="6" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="12" x2="16" y2="12" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/><line x1="11" y1="18" x2="13" y2="18" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="filter-badge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary-600 rounded-full text-white text-[8px] font-bold flex items-center justify-center">1</span>
+        </button>
+      </div>
+      <!-- Category pills -->
+      <div class="px-4 pb-3">
+        <div id="category-pills" class="flex gap-2 overflow-x-auto no-scrollbar"></div>
+      </div>
+    </div>
+
+    <!-- ── SCROLLABLE CONTENT ── -->
+    <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
+      <!-- Result count + sort -->
+      <div class="px-4 py-2 flex items-center justify-between">
+        <p id="result-count" class="text-xs text-gray-400"></p>
+        <button onclick="cycleSort()" id="sort-btn" class="flex items-center gap-1 text-xs text-gray-500 font-medium">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M6 12h12M9 18h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span id="sort-label">A-Z</span>
+        </button>
+      </div>
+      <!-- Store grid -->
+      <div id="store-grid" class="px-4 grid grid-cols-2 gap-3 pb-4"></div>
+      <!-- Empty state -->
+      <div id="empty-state" class="hidden px-6 pt-8 flex flex-col items-center text-center">
+        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#9ca3af" stroke-width="2"/><path d="M16.5 16.5L20 20" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="11" x2="14" y2="11" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <p id="empty-title" class="text-base font-semibold text-gray-700">No stores found</p>
+        <p class="text-sm text-gray-400 mt-1">Try a different search or clear filters</p>
+        <button onclick="clearAll()" class="mt-4 bg-primary-600 text-white text-xs font-semibold px-5 py-2 rounded-full">Clear all filters</button>
+      </div>
+    </div>
+
+    <!-- ── BOTTOM NAV ── -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50">
+      <div class="relative h-[72px]">
+        <svg class="absolute inset-0 w-full h-full drop-shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" viewBox="0 0 430 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,14 L170,14 C176,14 180,14 184,18 C190,26 198,34 215,34 C232,34 240,26 246,18 C250,14 254,14 260,14 L430,14 L430,72 L0,72 Z" fill="white"/>
+        </svg>
+        <a href="02-search-results.html" class="fab-btn absolute left-1/2 -translate-x-1/2 -top-4 w-[56px] h-[56px] rounded-full flex items-center justify-center z-10">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="2.5"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </a>
+        <span class="absolute left-1/2 -translate-x-1/2 bottom-2 text-[10px] font-bold text-primary-600 z-10 pointer-events-none">Search</span>
+        <div class="absolute inset-0 flex items-end pb-2 px-2">
+          <a href="01-home.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-[10px] font-medium text-gray-400">Home</span>
+          </a>
+          <!-- Stores (active) -->
+          <a href="11-all-stores.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l1-4h16l1 4" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9v10a2 2 0 002 2h14a2 2 0 002-2V9" stroke="#2E7D32" stroke-width="2"/><path d="M9 21V13h6v8" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-[10px] font-bold text-primary-600">Stores</span>
+          </a>
+          <div class="w-[76px] shrink-0"></div>
+          <a href="04-navigation-guide.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/><line x1="8" y1="2" x2="8" y2="18" stroke="#9ca3af" stroke-width="2"/><line x1="16" y1="6" x2="16" y2="22" stroke="#9ca3af" stroke-width="2"/></svg>
+            <span class="text-[10px] font-medium text-gray-400">Map</span>
+          </a>
+          <button onclick="toggleServices()" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.5" fill="#9ca3af"/><circle cx="12" cy="12" r="1.5" fill="#9ca3af"/><circle cx="19" cy="12" r="1.5" fill="#9ca3af"/><circle cx="12" cy="5" r="1.5" fill="#9ca3af"/><circle cx="12" cy="19" r="1.5" fill="#9ca3af"/><circle cx="5" cy="5" r="1.5" fill="#9ca3af"/><circle cx="19" cy="5" r="1.5" fill="#9ca3af"/><circle cx="5" cy="19" r="1.5" fill="#9ca3af"/><circle cx="19" cy="19" r="1.5" fill="#9ca3af"/></svg>
+            <span class="text-[10px] font-medium text-gray-400">Services</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── FILTER SHEET ── -->
+    <div id="filter-backdrop" class="fixed inset-0 bg-black/40 z-[60] hidden" onclick="toggleFilter()"></div>
+    <div id="filter-sheet" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white rounded-t-2xl z-[70] shadow-2xl translate-y-full">
+      <div class="flex justify-center pt-3 pb-1" onclick="toggleFilter()"><div class="w-9 h-1 rounded-full bg-gray-200"></div></div>
+      <div class="px-5 pt-1 pb-3 flex items-center justify-between">
+        <h3 class="text-base font-bold text-gray-900">Filter & Sort</h3>
+        <button onclick="clearAll()" class="text-xs font-semibold text-primary-600">Reset</button>
+      </div>
+      <div class="px-5 pb-3">
+        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Category</p>
+        <div id="filter-categories" class="flex flex-wrap gap-2"></div>
+      </div>
+      <div class="px-5 pb-3 pt-2">
+        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Floor</p>
+        <div id="filter-floors" class="flex gap-2"></div>
+      </div>
+      <div class="px-5 pb-3 pt-2">
+        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">Sort By</p>
+        <div id="filter-sorts" class="flex gap-2"></div>
+      </div>
+      <div class="px-5 pb-8 pt-2">
+        <button onclick="toggleFilter()" class="w-full bg-primary-600 text-white font-semibold py-3 rounded-xl text-sm">Apply Filters</button>
+      </div>
+    </div>
+
+    <!-- ── SERVICES SHEET ── -->
+    <div id="services-backdrop" class="fixed inset-0 bg-black/40 z-[60] hidden" onclick="toggleServices()"></div>
+    <div id="services-sheet" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white rounded-t-2xl z-[70] shadow-2xl translate-y-full">
+      <div class="flex justify-center pt-3 pb-1" onclick="toggleServices()"><div class="w-9 h-1 rounded-full bg-gray-200"></div></div>
+      <div class="px-5 pt-1 pb-4"><h3 class="text-base font-bold text-gray-900">Mall Services</h3></div>
+      <div class="px-5 pb-8">
+        <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden">
+          <a href="04-navigation-guide.html?to=help-desk" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#374151" stroke-width="1.8"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-medium text-gray-900">Help Desk</p><p class="text-[11px] text-gray-400">Navigate to nearest help desk</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="05-restroom-finder.html" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="4" r="2" stroke="#374151" stroke-width="1.8"/><path d="M6 8h6v3l-1 7H7l-1-7V8z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><circle cx="17" cy="4" r="2" stroke="#374151" stroke-width="1.8"/><path d="M15 8h4l-1 5h-2l-1-5z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="15" y1="13" x2="14" y2="20" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="19" y1="13" x2="20" y2="20" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-medium text-gray-900">Restrooms</p><p class="text-[11px] text-gray-400">Find and navigate to nearest</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="04-navigation-guide.html?to=mother-baby" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="5" r="2.5" stroke="#374151" stroke-width="1.8"/><path d="M6.5 10h7l-.5 5H7l-.5-5z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="8" y1="15" x2="7.5" y2="21" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="15" x2="12.5" y2="21" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="9" r="1.5" stroke="#374151" stroke-width="1.5"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-medium text-gray-900">Mother & Baby</p><p class="text-[11px] text-gray-400">Nursing rooms on Floor 1 & 2</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="04-navigation-guide.html?to=parking" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#374151" stroke-width="1.8"/><path d="M9 7h4a3.5 3.5 0 010 7H9V7z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="9" y1="14" x2="9" y2="18" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-medium text-gray-900">Pay Parking</p><p class="text-[11px] text-gray-400">Navigate to nearest pay station</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="09-report-issue.html" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-medium text-gray-900">Report an Issue</p><p class="text-[11px] text-gray-400">Safety, cleanliness, or maintenance</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="10-contact-us.html" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#374151" stroke-width="1.8"/></svg></div>
+            <div class="flex-1"><p class="text-sm font-medium text-gray-900">Contact Us</p><p class="text-[11px] text-gray-400">Call, email, or send a message</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  // ── STORE DATA WITH IMAGES ──
+  const STORES = [
+    {id:"nike",name:"Nike Store",category:"Fashion",tags:["shoes","sneakers","sportswear"],floor:2,img:"https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80",color:"#374151"},
+    {id:"uniqlo",name:"Uniqlo",category:"Fashion",tags:["clothing","casual","basics"],floor:1,img:"https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400&q=80",color:"#374151"},
+    {id:"zara",name:"Zara",category:"Fashion",tags:["clothing","trendy","european"],floor:1,img:"https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&q=80",color:"#374151"},
+    {id:"hm",name:"H&M",category:"Fashion",tags:["clothing","affordable","sustainable"],floor:2,img:"https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&q=80",color:"#374151"},
+    {id:"apple",name:"Apple Store",category:"Electronics",tags:["phones","laptops","tech","iphone"],floor:2,img:"https://images.unsplash.com/photo-1491933382434-500287f9b54b?w=400&q=80",color:"#374151"},
+    {id:"samsung",name:"Samsung",category:"Electronics",tags:["phones","galaxy","tech","tv"],floor:2,img:"https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&q=80",color:"#374151"},
+    {id:"bestbuy",name:"Best Buy",category:"Electronics",tags:["gadgets","computers","gaming"],floor:1,img:"https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=400&q=80",color:"#374151"},
+    {id:"sephora",name:"Sephora",category:"Health & Beauty",tags:["makeup","cosmetics","skincare"],floor:1,img:"https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80",color:"#374151"},
+    {id:"watsons",name:"Watsons",category:"Health & Beauty",tags:["pharmacy","health","wellness"],floor:1,img:"https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&q=80",color:"#374151"},
+    {id:"bath-body",name:"Bath & Body Works",category:"Health & Beauty",tags:["candles","fragrance","lotion"],floor:2,img:"https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=400&q=80",color:"#374151"},
+    {id:"sakura",name:"Sakura Sushi",category:"Food & Dining",tags:["japanese","sushi","ramen"],floor:1,img:"https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&q=80",color:"#374151"},
+    {id:"burger-hub",name:"Burger Hub",category:"Food & Dining",tags:["burgers","fast food","american"],floor:1,img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80",color:"#374151"},
+    {id:"cafe-mocha",name:"Cafe Mocha",category:"Food & Dining",tags:["coffee","tea","pastries"],floor:2,img:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80",color:"#374151"},
+    {id:"pizza-palace",name:"Pizza Palace",category:"Food & Dining",tags:["pizza","italian","pasta"],floor:1,img:"https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80",color:"#374151"},
+    {id:"seoul-kitchen",name:"Seoul Kitchen",category:"Food & Dining",tags:["korean","bbq","asian"],floor:1,img:"https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=400&q=80",color:"#374151"},
+    {id:"sweet-tooth",name:"Sweet Tooth",category:"Food & Dining",tags:["dessert","ice cream","cake"],floor:2,img:"https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=80",color:"#374151"},
+    {id:"cinema",name:"Greenfield Cinema",category:"Entertainment",tags:["movies","film","imax"],floor:3,img:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&q=80",color:"#374151"},
+    {id:"arcade",name:"Fun Zone Arcade",category:"Entertainment",tags:["games","arcade","bowling"],floor:3,img:"https://images.unsplash.com/photo-1511882150382-421056c89033?w=400&q=80",color:"#374151"},
+    {id:"ikea",name:"IKEA Home",category:"Home & Living",tags:["furniture","home decor","kitchen"],floor:3,img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80",color:"#374151"},
+    {id:"muji",name:"MUJI",category:"Home & Living",tags:["minimalist","stationery","japanese"],floor:2,img:"https://images.unsplash.com/photo-1523575708161-ad0fc2a9b951?w=400&q=80",color:"#374151"},
+    {id:"daiso",name:"Daiso",category:"Home & Living",tags:["variety","household","japanese"],floor:1,img:"https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=400&q=80",color:"#374151"}
+  ];
+
+  // ── STATE ──
+  let query = '';
+  let activeCategory = 'All';
+  let activeFloor = 'All';
+  let sortBy = 'name';
+  const sortCycle = ['name','floor','category'];
+  const categories = ['All','Fashion','Electronics','Food & Dining','Health & Beauty','Entertainment','Home & Living'];
+  const floors = ['All','1','2','3'];
+
+  // ── INIT ──
+  (function(){
+    const p = new URLSearchParams(location.search);
+    if(p.get('cat')&&categories.includes(p.get('cat'))) activeCategory=p.get('cat');
+    if(p.get('q')){query=p.get('q');document.getElementById('search-input').value=query}
+    renderPills(); renderFilterSheet(); doSearch();
+  })();
+
+  // ── SEARCH ──
+  let dt;
+  document.getElementById('search-input').addEventListener('input',e=>{clearTimeout(dt);dt=setTimeout(()=>{query=e.target.value.trim();updateURL();doSearch()},200)});
+
+  function clearSearch(){query='';document.getElementById('search-input').value='';updateURL();doSearch();document.getElementById('search-input').focus()}
+  function clearAll(){query='';activeCategory='All';activeFloor='All';sortBy='name';document.getElementById('search-input').value='';updateURL();renderPills();renderFilterSheet();doSearch()}
+  function setCategory(c){activeCategory=c;updateURL();renderPills();renderFilterSheet();updateBadge();doSearch()}
+  function setFloor(f){activeFloor=f;updateURL();renderFilterSheet();updateBadge();doSearch()}
+  function setSortFilter(s){sortBy=s;renderFilterSheet();doSearch()}
+  function cycleSort(){const i=(sortCycle.indexOf(sortBy)+1)%sortCycle.length;sortBy=sortCycle[i];document.getElementById('sort-label').textContent={name:'A-Z',floor:'Floor',category:'Category'}[sortBy];renderFilterSheet();doSearch()}
+
+  function updateURL(){const p=new URLSearchParams();if(query)p.set('q',query);if(activeCategory!=='All')p.set('cat',activeCategory);if(activeFloor!=='All')p.set('floor',activeFloor);const s=p.toString();history.replaceState(null,'',s?'?'+s:location.pathname)}
+
+  function doSearch(){
+    document.getElementById('clear-btn').classList.toggle('hidden',!query);
+    updateBadge();
+    let r=STORES.filter(s=>{
+      if(query){const q=query.toLowerCase();if(!s.name.toLowerCase().includes(q)&&!s.category.toLowerCase().includes(q)&&!s.tags.some(t=>t.includes(q)))return false}
+      if(activeCategory!=='All'&&s.category!==activeCategory)return false;
+      if(activeFloor!=='All'&&s.floor!==parseInt(activeFloor))return false;
+      return true;
+    });
+    r.sort((a,b)=>{if(sortBy==='name')return a.name.localeCompare(b.name);if(sortBy==='floor')return a.floor-b.floor||a.name.localeCompare(b.name);return a.category.localeCompare(b.category)||a.name.localeCompare(b.name)});
+
+    document.getElementById('result-count').textContent=`${r.length} store${r.length!==1?'s':''}`;
+    document.getElementById('empty-state').classList.toggle('hidden',r.length>0);
+    document.getElementById('store-grid').classList.toggle('hidden',r.length===0);
+    if(!r.length){document.getElementById('empty-title').textContent=query?`No stores found for '${query}'`:'No stores match filters';return}
+
+    const ADS = [
+      {gradient:'from-emerald-500 to-teal-600',badge:'This Weekend',badgeColor:'bg-yellow-400 text-yellow-900',title:'Spring Sale — 50% Off',desc:'At 40+ stores mall-wide'},
+      {gradient:'from-indigo-500 to-purple-600',badge:'New Opening',badgeColor:'bg-pink-400 text-pink-900',title:'Apple Store is Here',desc:'Floor 2, Center Atrium'},
+      {gradient:'from-orange-500 to-red-500',badge:'Limited Time',badgeColor:'bg-yellow-300 text-yellow-900',title:'Buy 1 Get 1 Free',desc:'Nike Store — all sneakers'},
+      {gradient:'from-blue-500 to-cyan-500',badge:'Members Only',badgeColor:'bg-white/90 text-blue-800',title:'Loyalty Rewards Day',desc:'Double points on all purchases'},
+    ];
+    let html = '';
+    let adIdx = 0;
+    r.forEach((s, i) => {
+      // Insert ad after every 6 items (3 rows of 2)
+      if (i > 0 && i % 6 === 0) {
+        const ad = ADS[adIdx % ADS.length];
+        html += `<div class="col-span-2 bg-gradient-to-r ${ad.gradient} rounded-2xl p-4 relative overflow-hidden">
+          <div class="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white opacity-[0.06]"></div>
+          <span class="text-white/50 text-[9px] font-semibold uppercase tracking-wider">Sponsored</span>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="inline-block ${ad.badgeColor} text-[9px] font-bold uppercase tracking-wider rounded-full px-2 py-0.5">${ad.badge}</span>
+          </div>
+          <p class="text-white text-sm font-bold mt-1.5">${ad.title}</p>
+          <p class="text-white/70 text-xs mt-0.5">${ad.desc}</p>
+        </div>`;
+        adIdx++;
+      }
+      html += `<a href="03-store-profile.html?id=${s.id}" class="store-card relative rounded-2xl overflow-hidden shadow-md h-[200px] block">
+        <div class="absolute inset-0 bg-cover bg-center" style="background-image:url('${s.img}');background-color:${s.color}"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        <div class="relative z-10 flex flex-col justify-end h-full p-3">
+          <span class="text-[10px] font-bold text-white/60 uppercase tracking-wider">${s.category}</span>
+          <p class="text-white font-bold text-sm leading-tight">${s.name}</p>
+          <span class="text-white/50 text-[10px]">Floor ${s.floor}</span>
+        </div>
+      </a>`;
+    });
+    document.getElementById('store-grid').innerHTML = html;
+  }
+
+  // ── RENDER ──
+  function renderPills(){
+    document.getElementById('category-pills').innerHTML=categories.map(c=>`<button onclick="setCategory('${c}')" class="flex-shrink-0 text-xs font-medium px-4 py-1.5 rounded-full transition whitespace-nowrap ${c===activeCategory?'bg-primary-600 text-white font-semibold':'bg-white border border-gray-200 text-gray-600 hover:border-primary-200'}">${c}</button>`).join('');
+  }
+  function renderFilterSheet(){
+    document.getElementById('filter-categories').innerHTML=categories.map(c=>`<button onclick="setCategory('${c}');renderFilterSheet()" class="text-xs font-medium px-4 py-2 rounded-full border transition ${c===activeCategory?'bg-primary-600 text-white border-primary-600':'bg-white text-gray-600 border-gray-200'}">${c}</button>`).join('');
+    document.getElementById('filter-floors').innerHTML=floors.map(f=>`<button onclick="setFloor('${f}')" class="text-xs font-medium px-4 py-2 rounded-full border transition ${f===activeFloor?'bg-primary-600 text-white border-primary-600':'bg-white text-gray-600 border-gray-200'}">${f==='All'?'All Floors':'Floor '+f}</button>`).join('');
+    document.getElementById('filter-sorts').innerHTML=sortCycle.map(s=>`<button onclick="setSortFilter('${s}')" class="text-xs font-medium px-4 py-2 rounded-full border transition ${s===sortBy?'bg-primary-600 text-white border-primary-600':'bg-white text-gray-600 border-gray-200'}">${{name:'A-Z',floor:'Floor',category:'Category'}[s]}</button>`).join('');
+  }
+  function updateBadge(){let c=0;if(activeCategory!=='All')c++;if(activeFloor!=='All')c++;const b=document.getElementById('filter-badge'),btn=document.getElementById('filter-btn');b.classList.toggle('hidden',!c);b.textContent=c;btn.classList.toggle('bg-primary-50',c>0);btn.classList.toggle('bg-gray-100',!c)}
+
+  // ── SHEETS ──
+  function toggleSheet(s,b){const sh=document.getElementById(s),bd=document.getElementById(b),open=!sh.classList.contains('translate-y-full');if(open){sh.classList.add('translate-y-full');bd.classList.remove('opacity-100');bd.classList.add('opacity-0');setTimeout(()=>bd.classList.add('hidden'),300)}else{bd.classList.remove('hidden');requestAnimationFrame(()=>{bd.classList.remove('opacity-0');bd.classList.add('opacity-100');sh.classList.remove('translate-y-full')})}}
+  function toggleFilter(){toggleSheet('filter-sheet','filter-backdrop')}
+  function toggleServices(){toggleSheet('services-sheet','services-backdrop')}
+</script>
+
+<!-- Page Navigator -->
+<div id="page-nav" class="fixed top-4 right-4 z-[9999]">
+  <button onclick="document.getElementById('nav-panel').classList.toggle('hidden')" class="w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div id="nav-panel" class="hidden mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-56 overflow-hidden">
+    <div class="px-3 py-2 bg-gray-50 border-b border-gray-200"><span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Screen Navigator</span></div>
+    <nav class="py-1 max-h-[70vh] overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 border-b border-gray-100"><span class="w-5 h-5 rounded bg-gray-800 text-white text-xs flex items-center justify-center font-bold">~</span> Index</a>
+      <a href="01-home.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">01</span> Home</a>
+      <a href="02-search-results.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">02</span> Search</a>
+      <a href="11-all-stores.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">11</span> All Stores</a>
+      <a href="03-store-profile.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">03</span> Store Profile</a>
+      <a href="04-navigation-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-blue-500 text-white text-xs flex items-center justify-center font-bold">04</span> Navigation</a>
+      <a href="05-restroom-finder.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-amber-500 text-white text-xs flex items-center justify-center font-bold">05</span> Restrooms</a>
+    </nav>
+    <div class="px-3 py-2 bg-gray-50 border-t border-gray-200 flex justify-between text-xs text-gray-400"><span>MallNav v2.0</span><span>Design Studies</span></div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('#nav-panel nav a').forEach(a=>{if(a.getAttribute('href')===location.pathname.split('/').pop()){a.classList.add('bg-emerald-50','text-emerald-700','font-medium');a.classList.remove('text-gray-600')}});
+  document.addEventListener('click',e=>{if(!document.getElementById('page-nav').contains(e.target))document.getElementById('nav-panel').classList.add('hidden')});
+</script>
+</body>
+</html>

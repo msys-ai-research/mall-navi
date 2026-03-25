@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MallNav — Map</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { primary: { DEFAULT:'#2E7D32',50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',400:'#4ade80',500:'#22c55e',600:'#2E7D32',700:'#15803d',800:'#166534',900:'#14532d' }}}}
+    }
+  </script>
+  <style>
+    *{-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+    html,body{margin:0;padding:0;overflow:hidden;height:100%;touch-action:none}
+    @keyframes pulse-ring{0%{r:14;opacity:.5}100%{r:30;opacity:0}}
+    .pulse-ring{animation:pulse-ring 1.8s ease-out infinite}
+    .pulse-static{animation:none}
+    @keyframes dash-flow{to{stroke-dashoffset:-24}}
+    .route-animated{stroke-dasharray:14 14;animation:dash-flow .8s linear infinite}
+    .route-preview{stroke-dasharray:10 10;opacity:.5}
+    #map-container{touch-action:none;cursor:grab}
+    #map-container:active{cursor:grabbing}
+    .sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:40;
+      transition:height .35s cubic-bezier(.4,0,.2,1),opacity .3s;overflow:hidden;border-radius:1rem 1rem 0 0}
+    .sheet-inner{height:100%;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+    .store-marker{cursor:pointer;transition:opacity .2s}
+    .store-marker:hover{opacity:1 !important}
+    .store-marker.highlighted circle{stroke:#2E7D32;stroke-width:3;opacity:0.9}
+    .header-section{transition:opacity .25s,transform .25s}
+    .fade-out{opacity:0;pointer-events:none;transform:translateY(-8px)}
+    .fade-in{opacity:1;pointer-events:auto;transform:translateY(0)}
+    @keyframes checkPop{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+    .check-pop{animation:checkPop .4s ease-out}
+  </style>
+</head>
+<body class="bg-gray-900 flex items-start justify-center">
+
+<div id="app" class="w-full max-w-[430px] mx-auto h-screen bg-gray-100 relative overflow-hidden">
+
+  <!-- HEADER 1: SLIM BAR -->
+  <div id="header-slim" class="header-section fade-in absolute top-0 left-0 right-0 z-30">
+    <div class="flex items-center justify-between px-5 pt-3 pb-1 bg-gradient-to-b from-white via-white/95 to-white/0">
+      <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="mx-3 mt-1 bg-white/95 backdrop-blur rounded-2xl shadow-md px-3 py-2 flex items-center gap-2">
+      <a href="01-home.html" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 hover:bg-gray-200 transition">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12.5 15l-5-5 5-5" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="flex-1 text-sm font-bold text-gray-900 text-center truncate">Greenfield Mall</p>
+      <a href="02-search-results.html" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 hover:bg-gray-200 transition">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#374151" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- HEADER 2: ROUTE PLANNER BAR -->
+  <div id="header-planner" class="header-section fade-out absolute top-0 left-0 right-0 z-30">
+    <div class="flex items-center justify-between px-5 pt-3 pb-1 bg-gradient-to-b from-white via-white/95 to-white/0">
+      <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div class="mx-3 mt-1 bg-white/95 backdrop-blur rounded-2xl shadow-md px-3 py-2 flex items-center gap-2">
+      <button onclick="goState('IDLE')" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18" stroke="#374151" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <p class="flex-1 text-sm font-bold text-gray-900 text-center">Plan Route</p>
+      <div class="w-8 h-8"></div>
+    </div>
+  </div>
+
+  <!-- HEADER 3: DESTINATION CARD -->
+  <div id="header-nav" class="header-section fade-out absolute top-0 left-0 right-0 z-30">
+    <div class="flex items-center justify-between px-5 pt-3 pb-1 bg-gradient-to-b from-white via-white/95 to-white/0">
+      <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+        <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div onclick="goState('ROUTE_PLANNING')" class="mx-3 mt-1 bg-white rounded-2xl shadow-lg border border-gray-100 px-4 py-3 cursor-pointer hover:shadow-xl transition">
+      <div class="flex items-center gap-3">
+        <button onclick="event.stopPropagation();endNav()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 hover:bg-red-50 transition">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </button>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-gray-900 truncate" id="nav-dest-name">Nike</p>
+          <p class="text-[11px] text-gray-400" id="nav-dest-detail">Fashion</p>
+        </div>
+        <div class="text-right shrink-0">
+          <p class="text-sm font-bold text-primary-600" id="nav-time">~3 min</p>
+          <p class="text-[10px] text-gray-400" id="nav-dist">120 m</p>
+        </div>
+      </div>
+      <div class="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden">
+        <div id="nav-progress" class="h-full bg-primary-500 rounded-full transition-all" style="width:0%"></div>
+      </div>
+      <div class="flex justify-between mt-1">
+        <span class="text-[9px] text-gray-400" id="nav-step-count">Step 1 of 4</span>
+        <span class="text-[9px] text-gray-400">Tap to edit route</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN SVG MAP -->
+  <div id="map-container" class="absolute inset-0 z-0 bg-gray-100 overflow-hidden">
+    <svg id="map-svg" viewBox="0 0 1462 1150" class="w-full h-full" style="transform-origin:center center" preserveAspectRatio="xMidYMid meet">
+      <rect width="1462" height="1150" fill="#f3f4f6"/>
+      <!-- Real floor plan loaded as background image -->
+      <image href="mall-floor-plan.svg" x="0" y="0" width="1462" height="1150" preserveAspectRatio="xMidYMid meet"/>
+      <!-- Store markers (generated by JS) -->
+      <g id="store-markers-g"></g>
+      <!-- Route overlays -->
+      <g id="route-preview-g" style="display:none"></g>
+      <g id="route-active-g" style="display:none"></g>
+      <!-- Blue dot user marker -->
+      <g id="blue-dot-g" style="display:none">
+        <circle id="blue-pulse" cx="0" cy="0" r="30" fill="#3b82f6" opacity="0.1" class="pulse-static"/>
+        <circle id="blue-dot-outer" cx="0" cy="0" r="14" fill="#3b82f6" opacity="0.2"/>
+        <circle id="blue-dot-ring" cx="0" cy="0" r="10" fill="white"/>
+        <circle id="blue-dot-core" cx="0" cy="0" r="7" fill="#3b82f6"/>
+      </g>
+      <!-- Destination pin -->
+      <g id="dest-pin-g" style="display:none">
+        <path d="M0,-24 C-8,-24 -14,-18 -14,-12 C-14,-3 0,8 0,8 C0,8 14,-3 14,-12 C14,-18 8,-24 0,-24Z" fill="#dc2626" stroke="white" stroke-width="2.5"/>
+        <circle cx="0" cy="-12" r="4" fill="white"/>
+      </g>
+      <!-- Arrived checkmark -->
+      <g id="arrived-check-g" style="display:none">
+        <circle cx="0" cy="0" r="18" fill="#2E7D32"/>
+        <path d="M-6,0 L-2,4 L7,-5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- MAP CONTROLS (right) -->
+  <div class="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1.5">
+    <button onclick="zoomIn()" class="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center border border-gray-200 active:bg-gray-100 transition">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="#374151" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button onclick="zoomOut()" class="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center border border-gray-200 active:bg-gray-100 transition">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="#374151" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button onclick="recenter()" class="w-10 h-10 rounded-xl bg-white shadow-md flex items-center justify-center border border-gray-200 active:bg-gray-100 transition mt-2">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#3b82f6" stroke-width="2"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <!-- BOTTOM SHEET -->
+  <div id="sheet" class="sheet bg-white shadow-2xl" style="height:0">
+    <div class="sheet-inner">
+      <div class="flex justify-center pt-3 pb-1 cursor-grab" id="sheet-handle">
+        <div class="w-9 h-1 rounded-full bg-gray-300"></div>
+      </div>
+
+      <!-- Store Selected -->
+      <div id="sheet-store" class="hidden px-4 pb-6">
+        <div class="flex items-center gap-3 mb-1">
+          <div id="sel-logo-bg" class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style="background:#111">
+            <span id="sel-logo" class="text-white font-bold text-lg">N</span>
+          </div>
+          <div class="flex-1">
+            <p id="sel-name" class="text-base font-bold text-gray-900">Nike</p>
+            <p id="sel-cat" class="text-xs text-gray-400">Fashion</p>
+          </div>
+        </div>
+        <p id="sel-desc" class="text-xs text-gray-500 mb-3 leading-relaxed">Global leader in athletic footwear and equipment</p>
+        <button onclick="goState('ROUTE_PLANNING')" class="w-full bg-primary-600 text-white font-semibold rounded-xl py-3 text-sm flex items-center justify-center gap-2 shadow-md active:bg-primary-700 transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polygon points="3 11 22 2 13 21 11 13 3 11" stroke="white" stroke-width="2" stroke-linejoin="round"/></svg>
+          Navigate Here
+        </button>
+        <a href="03-store-profile.html" class="block text-center text-xs font-medium text-primary-600 mt-3">View Store Details</a>
+      </div>
+
+      <!-- Route Planning -->
+      <div id="sheet-plan" class="hidden px-4 pb-6">
+        <div class="flex gap-2 mb-3">
+          <div class="flex flex-col items-center pt-3 gap-0.5 shrink-0 w-5">
+            <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+            <div class="w-0.5 flex-1 border-l-2 border-dashed border-gray-300"></div>
+            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+          </div>
+          <div class="flex-1 flex flex-col gap-2">
+            <div class="bg-gray-100 rounded-xl px-3 py-2.5"><span class="text-sm text-gray-700">Entrance <span class="text-gray-400">(Your Location)</span></span></div>
+            <div class="bg-gray-100 rounded-xl px-3 py-2.5"><span id="plan-dest" class="text-sm font-medium text-gray-900">Nike</span></div>
+          </div>
+        </div>
+        <div class="bg-gray-50 rounded-xl p-3 flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2E7D32" stroke-width="2"/><polyline points="12 6 12 12 16 14" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-gray-900" id="plan-summary">~3 min · 120 m</p>
+            <p class="text-[11px] text-gray-400" id="plan-detail">4 steps</p>
+          </div>
+        </div>
+        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-4" style="scrollbar-width:none">
+          <button onclick="navToNearest('restroom')" class="shrink-0 flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1.5 text-[11px] text-gray-500 font-medium hover:border-gray-300 transition">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="4" r="2" stroke="currentColor" stroke-width="1.8"/><path d="M6 8h6v3l-1 7H7l-1-7V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            Nearest Restroom
+          </button>
+          <button onclick="navToNearest('exit')" class="shrink-0 flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1.5 text-[11px] text-gray-500 font-medium hover:border-gray-300 transition">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6m7 0L3 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Nearest Exit
+          </button>
+          <button onclick="navToNearest('food')" class="shrink-0 flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1.5 text-[11px] text-gray-500 font-medium hover:border-gray-300 transition">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Nearest Food
+          </button>
+        </div>
+        <button onclick="goState('ACTIVE_NAV')" class="w-full bg-primary-600 text-white font-semibold rounded-xl py-3.5 text-sm flex items-center justify-center gap-2 shadow-lg active:bg-primary-700 transition">
+          Start Navigation
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <!-- Active Navigation Steps -->
+      <div id="sheet-nav" class="hidden px-4 pb-6">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5l7 7-7 7" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-900" id="step-current-text">Walk from Entrance</p>
+            <p class="text-[11px] text-gray-400" id="step-current-meta">Step 1 of 4</p>
+          </div>
+        </div>
+        <div class="h-px bg-gray-100 mb-3"></div>
+        <p class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-2">All Steps</p>
+        <div id="step-list-container"></div>
+        <button onclick="endNav()" class="w-full mt-4 py-2.5 border border-gray-200 rounded-xl text-xs font-medium text-gray-400 hover:bg-gray-50 transition flex items-center justify-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          End Navigation
+        </button>
+      </div>
+
+      <!-- Arrived -->
+      <div id="sheet-arrived" class="hidden px-4 pb-6">
+        <div class="flex flex-col items-center text-center py-4">
+          <div class="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mb-3 check-pop">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">You've arrived!</h3>
+          <p class="text-sm text-gray-400 mt-1" id="arrived-info">Nike</p>
+        </div>
+        <div class="flex gap-2">
+          <a href="03-store-profile.html" class="flex-1 bg-primary-600 text-white font-semibold rounded-xl py-3 text-sm text-center shadow-md">View Store</a>
+          <button onclick="goState('IDLE')" class="flex-1 border border-gray-200 bg-white rounded-xl py-3 text-sm text-center text-gray-600 font-medium">Back to Map</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  STORE & GRAPH DATA (from KnotzerIO/indoor-wayfinder)
+// ══════════════════════════════════════════════════
+const STORES = {
+  zara:       {name:'Zara',              cat:'Fashion',       logo:'Z',  logoBg:'#111827', desc:'Latest trends in apparel and accessories', vertexId:'v3'},
+  mcshark:    {name:'McShark',           cat:'Electronics',   logo:'M',  logoBg:'#dc2626', desc:'Specializing in Apple products and accessories', vertexId:'v4'},
+  nike:       {name:'Nike',              cat:'Fashion',       logo:'N',  logoBg:'#111827', desc:'Global leader in athletic footwear and equipment', vertexId:'v5'},
+  adidas:     {name:'Adidas',            cat:'Fashion',       logo:'A',  logoBg:'#111827', desc:'Athletic wear and performance gear', vertexId:'v6'},
+  primark:    {name:'Primark',           cat:'Retail',        logo:'P',  logoBg:'#0ea5e9', desc:'Affordable fashion for the whole family', vertexId:'v7'},
+  svarovski:  {name:'Svarovski',         cat:'Luxury',        logo:'S',  logoBg:'#7c3aed', desc:'Fine crystal jewelry and accessories', vertexId:'v8'},
+  hm:         {name:'H&M',              cat:'Fashion',       logo:'H',  logoBg:'#dc2626', desc:'Fashion and quality at the best price', vertexId:'v9'},
+  gucci:      {name:'Gucci',             cat:'Luxury',        logo:'G',  logoBg:'#166534', desc:'Italian luxury fashion for trendsetters', vertexId:'v10'},
+  louisv:     {name:'Louis Vuitton',     cat:'Luxury',        logo:'LV', logoBg:'#78350f', desc:'High-end bags, luggage, and accessories', vertexId:'v11'},
+  kfc:        {name:'KFC',               cat:'Food',          logo:'K',  logoBg:'#dc2626', desc:'Crispy fried chicken and sides', vertexId:'v12'},
+  mcdonalds:  {name:"McDonald's",        cat:'Food',          logo:'M',  logoBg:'#eab308', desc:'Classic fast-food chain for burgers and fries', vertexId:'v13'},
+  tobacco:    {name:'Tobacco Shop',      cat:'Retail',        logo:'T',  logoBg:'#78350f', desc:'Tobacco products and smoking accessories', vertexId:'v14'},
+  petsmart:   {name:'PetSmart',          cat:'Retail',        logo:'P',  logoBg:'#dc2626', desc:"Everything for your pet's needs", vertexId:'v15'},
+  barbershop: {name:'Barbershop',        cat:'Services',      logo:'B',  logoBg:'#374151', desc:'Classic and contemporary haircuts', vertexId:'v16'},
+  sephora:    {name:'Sephora',           cat:'Retail',        logo:'S',  logoBg:'#111827', desc:'Skincare, cosmetics, and fragrances', vertexId:'v17'},
+  mediamarkt: {name:'MediaMarkt',        cat:'Electronics',   logo:'M',  logoBg:'#dc2626', desc:'Latest in electronics and appliances', vertexId:'v18'},
+  malloffice: {name:'Mall Office',       cat:'Services',      logo:'O',  logoBg:'#374151', desc:'Mall inquiries and services', vertexId:'v25'},
+  entrance:   {name:'Entrance',          cat:'Entrance',      logo:'E',  logoBg:'#166534', desc:'Main mall entrance', vertexId:'v34'},
+  northwc:    {name:'North Wing Toilet',  cat:'Sanitary',      logo:'WC', logoBg:'#ec4899', desc:'Restroom facilities', vertexId:'v42'},
+  seveneleven:{name:'7-Eleven',          cat:'Retail',        logo:'7',  logoBg:'#166534', desc:'Convenience store', vertexId:'v43'},
+  victoria:   {name:"Victoria's Secret", cat:'Fashion',       logo:'VS', logoBg:'#ec4899', desc:'Lingerie, sleepwear, and beauty', vertexId:'v44'},
+  pandora:    {name:'Pandora',           cat:'Luxury',        logo:'P',  logoBg:'#ec4899', desc:'Charm bracelets, rings, and more', vertexId:'v45'},
+  footlocker: {name:'Foot Locker',       cat:'Fashion',       logo:'FL', logoBg:'#111827', desc:'Athletic footwear and apparel', vertexId:'v46'},
+  pharmacy:   {name:'Pharmacy',          cat:'Retail',        logo:'+',  logoBg:'#166534', desc:'Prescription drugs and health products', vertexId:'v47'},
+  gamestop:   {name:'GameStop',          cat:'Electronics',   logo:'G',  logoBg:'#dc2626', desc:'Video games and gaming merchandise', vertexId:'v48'},
+  claires:    {name:"Claire's",          cat:'Fashion',       logo:'C',  logoBg:'#ec4899', desc:'Accessories and jewelry', vertexId:'v49'},
+  eastwc:     {name:'East Wing Toilet',  cat:'Sanitary',      logo:'WC', logoBg:'#ec4899', desc:'Restroom facilities', vertexId:'v50'},
+  chanel:     {name:'Chanel',            cat:'Luxury',        logo:'C',  logoBg:'#111827', desc:'Iconic fashion, fragrance, and accessories', vertexId:'v59'},
+  rolex:      {name:'Rolex',             cat:'Luxury',        logo:'R',  logoBg:'#166534', desc:'Swiss luxury watches', vertexId:'v60'},
+  starbucks:  {name:'Starbucks',         cat:'Food',          logo:'S',  logoBg:'#166534', desc:'Your favorite brews and snacks', vertexId:'v72'},
+  levis:      {name:"Levi's",            cat:'Fashion',       logo:'L',  logoBg:'#dc2626', desc:'Classic American denim and casual wear', vertexId:'v74'},
+  vans:       {name:'Vans',              cat:'Fashion',       logo:'V',  logoBg:'#111827', desc:'Skateboarding footwear and apparel', vertexId:'v75'}
+};
+
+const CAT_COLORS = {
+  Fashion:'#3b82f6', Electronics:'#ef4444', Food:'#f59e0b', Luxury:'#8b5cf6',
+  Retail:'#06b6d4', Services:'#6b7280', Sanitary:'#ec4899', Entrance:'#22c55e'
+};
+
+// 77 vertices from graphData.ts
+const VERTICES = [
+  {id:'v1',name:null,cx:361.105,cy:512.811},{id:'v2',name:null,cx:237.691,cy:512.811},
+  {id:'v3',name:'Zara',cx:237.691,cy:905.781},{id:'v4',name:'McShark',cx:361.105,cy:905.781},
+  {id:'v5',name:'Nike',cx:490.616,cy:905.781},{id:'v6',name:'Adidas',cx:622.812,cy:905.781},
+  {id:'v7',name:'Primark',cx:754.244,cy:905.781},{id:'v8',name:'Svarovski',cx:889.316,cy:905.781},
+  {id:'v9',name:'H&M',cx:1020.234,cy:905.781},{id:'v10',name:'Gucci',cx:361.105,cy:474.539},
+  {id:'v11',name:'Louis Vuitton',cx:542.482,cy:474.539},{id:'v12',name:'KFC',cx:779.083,cy:474.539},
+  {id:'v13',name:"McDonald's",cx:1017.929,cy:474.539},{id:'v14',name:'Tobacco Shop',cx:1242.029,cy:459.155},
+  {id:'v15',name:'PetSmart',cx:1242.029,cy:640.699},{id:'v16',name:'Barbershop',cx:1242.029,cy:830.926},
+  {id:'v17',name:'Sephora',cx:1020.234,cy:844.833},{id:'v18',name:'MediaMarkt',cx:754.244,cy:846.411},
+  {id:'v19',name:null,cx:754.244,cy:873.505},{id:'v20',name:null,cx:622.812,cy:873.505},
+  {id:'v21',name:null,cx:490.616,cy:873.505},{id:'v22',name:null,cx:361.105,cy:873.505},
+  {id:'v23',name:null,cx:237.691,cy:873.505},{id:'v24',name:null,cx:237.691,cy:439.536},
+  {id:'v25',name:'Mall Office',cx:195.932,cy:439.536},{id:'v26',name:null,cx:542.482,cy:512.811},
+  {id:'v27',name:null,cx:779.083,cy:512.811},{id:'v28',name:null,cx:1017.929,cy:512.811},
+  {id:'v29',name:null,cx:1218.515,cy:512.811},{id:'v30',name:null,cx:1218.515,cy:459.155},
+  {id:'v31',name:null,cx:1218.515,cy:640.699},{id:'v32',name:null,cx:1218.515,cy:830.906},
+  {id:'v33',name:null,cx:1020.234,cy:873.505},{id:'v34',name:'Entrance',cx:1156.16,cy:1014.082},
+  {id:'v35',name:null,cx:1156.16,cy:970.567},{id:'v36',name:null,cx:1106.42,cy:970.567},
+  {id:'v37',name:null,cx:1218.515,cy:970.567},{id:'v38',name:null,cx:1106.42,cy:873.505},
+  {id:'v39',name:null,cx:1106.42,cy:512.811},{id:'v40',name:null,cx:361.105,cy:599.577},
+  {id:'v41',name:null,cx:361.105,cy:690.858},{id:'v42',name:'North Wing Toilet',cx:203.474,cy:184.225},
+  {id:'v43',name:'7-Eleven',cx:345.867,cy:184.225},{id:'v44',name:"Victoria's Secret",cx:524.915,cy:184.225},
+  {id:'v45',name:'Pandora',cx:661.007,cy:184.225},{id:'v46',name:'Foot Locker',cx:833.196,cy:184.225},
+  {id:'v47',name:'Pharmacy',cx:999.008,cy:184.225},{id:'v48',name:'GameStop',cx:1181.918,cy:184.225},
+  {id:'v49',name:"Claire's",cx:1316.882,cy:184.225},{id:'v50',name:'East Wing Toilet',cx:1300.785,cy:343.02},
+  {id:'v51',name:null,cx:1181.918,cy:343.02},{id:'v52',name:null,cx:1181.918,cy:512.811},
+  {id:'v53',name:null,cx:1181.918,cy:459.155},{id:'v54',name:null,cx:1316.882,cy:214.387},
+  {id:'v55',name:null,cx:1242.029,cy:214.387},{id:'v56',name:null,cx:1242.029,cy:343.02},
+  {id:'v57',name:null,cx:238.382,cy:214.387},{id:'v58',name:null,cx:203.474,cy:214.387},
+  {id:'v59',name:'Chanel',cx:345.867,cy:242.517},{id:'v60',name:'Rolex',cx:524.915,cy:242.517},
+  {id:'v61',name:null,cx:524.915,cy:214.387},{id:'v62',name:null,cx:345.867,cy:214.387},
+  {id:'v63',name:null,cx:661.007,cy:214.387},{id:'v64',name:null,cx:661.007,cy:254.159},
+  {id:'v65',name:null,cx:661.007,cy:512.811},{id:'v66',name:null,cx:833.196,cy:214.387},
+  {id:'v67',name:null,cx:901.613,cy:214.387},{id:'v68',name:null,cx:901.613,cy:512.811},
+  {id:'v69',name:null,cx:999.008,cy:214.387},{id:'v70',name:null,cx:1181.918,cy:214.387},
+  {id:'v71',name:null,cx:433.087,cy:873.505},{id:'v72',name:'Starbucks',cx:433.087,cy:846.411},
+  {id:'v73',name:null,cx:889.316,cy:873.505},{id:'v74',name:"Levi's",cx:380.811,cy:599.157},
+  {id:'v75',name:'Vans',cx:380.811,cy:690.858},{id:'v76',name:null,cx:1106.42,cy:789.755},
+  {id:'v77',name:null,cx:1218.515,cy:789.755}
+];
+
+// 86 edges (self-loops and duplicates removed)
+const EDGES = [
+  ['v1','v2'],['v34','v35'],['v35','v36'],['v36','v38'],['v33','v38'],['v9','v33'],
+  ['v33','v73'],['v19','v73'],['v19','v20'],['v20','v21'],['v21','v71'],['v21','v5'],
+  ['v20','v6'],['v19','v7'],['v73','v8'],['v22','v71'],['v22','v4'],['v71','v72'],
+  ['v22','v23'],['v23','v3'],['v22','v41'],['v1','v10'],['v1','v40'],['v1','v26'],
+  ['v11','v26'],['v26','v65'],['v27','v65'],['v12','v27'],['v27','v68'],['v40','v41'],
+  ['v19','v33'],['v52','v53'],['v51','v70'],['v28','v39'],['v39','v52'],['v29','v30'],
+  ['v14','v30'],['v15','v31'],['v16','v32'],['v13','v28'],['v51','v53'],['v55','v70'],
+  ['v2','v24'],['v24','v25'],['v24','v57'],['v57','v58'],['v42','v58'],['v57','v62'],
+  ['v43','v62'],['v59','v62'],['v61','v62'],['v44','v61'],['v60','v61'],['v61','v63'],
+  ['v45','v63'],['v63','v64'],['v49','v54'],['v55','v56'],['v51','v56'],['v50','v56'],
+  ['v30','v53'],['v29','v52'],['v29','v31'],['v35','v37'],['v18','v19'],['v64','v65'],
+  ['v67','v68'],['v28','v68'],['v63','v66'],['v2','v23'],['v17','v33'],['v46','v66'],
+  ['v32','v37'],['v54','v55'],['v47','v69'],['v67','v69'],['v66','v67'],['v69','v70'],
+  ['v48','v70'],['v38','v76'],['v39','v76'],['v76','v77'],['v31','v77'],['v32','v77'],
+  ['v41','v75'],['v40','v74']
+];
+
+// Build vertex lookup
+const VMAP = {};
+VERTICES.forEach(v => VMAP[v.id] = v);
+
+const SVG_SCALE = 20;
+const USER_VERTEX = 'v34'; // Entrance
+
+
+// ══════════════════════════════════════════════════
+//  PATHFINDING (Dijkstra)
+// ══════════════════════════════════════════════════
+class PQ {
+  constructor(){this.h=[]}
+  push(id,d){this.h.push({id,d});this._up(this.h.length-1)}
+  pop(){const m=this.h[0],e=this.h.pop();if(this.h.length>0){this.h[0]=e;this._dn(0)}return m}
+  empty(){return !this.h.length}
+  _up(i){while(i>0){const p=(i-1)>>1;if(this.h[p].d<=this.h[i].d)break;[this.h[p],this.h[i]]=[this.h[i],this.h[p]];i=p}}
+  _dn(i){const n=this.h.length;while(true){let s=i,l=2*i+1,r=2*i+2;if(l<n&&this.h[l].d<this.h[s].d)s=l;if(r<n&&this.h[r].d<this.h[s].d)s=r;if(s===i)break;[this.h[s],this.h[i]]=[this.h[i],this.h[s]];i=s}}
+}
+
+function dist(a,b){return Math.sqrt((b.cx-a.cx)**2+(b.cy-a.cy)**2)}
+
+// Build adjacency list once
+const ADJ = {};
+VERTICES.forEach(v => ADJ[v.id] = []);
+EDGES.forEach(([a,b]) => {
+  const va = VMAP[a], vb = VMAP[b];
+  if(!va||!vb) return;
+  const w = dist(va, vb);
+  ADJ[a].push({id:b, w});
+  ADJ[b].push({id:a, w});
+});
+
+function dijkstra(startId, endId) {
+  const d = {}, prev = {};
+  VERTICES.forEach(v => { d[v.id] = Infinity; prev[v.id] = null; });
+  d[startId] = 0;
+  const pq = new PQ(); pq.push(startId, 0);
+  const vis = new Set();
+  while(!pq.empty()) {
+    const {id:u} = pq.pop();
+    if(vis.has(u)) continue; vis.add(u);
+    if(u===endId) break;
+    for(const {id:v, w} of ADJ[u]) {
+      const alt = d[u] + w;
+      if(alt < d[v]) { d[v]=alt; prev[v]=u; pq.push(v, alt); }
+    }
+  }
+  const path = []; let cur = endId;
+  while(cur) { path.unshift(cur); cur = prev[cur]; }
+  if(path[0]!==startId) return {path:[], totalDist:Infinity};
+  return {path, totalDist: d[endId]};
+}
+
+function findRoute(toStoreKey) {
+  const store = STORES[toStoreKey];
+  if(!store) return null;
+  const {path, totalDist} = dijkstra(USER_VERTEX, store.vertexId);
+  if(!path.length) return null;
+  return { allVertices: path.map(id => VMAP[id]), totalDist };
+}
+
+
+// ══════════════════════════════════════════════════
+//  ROUTE RENDERING
+// ══════════════════════════════════════════════════
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svgEl(t){return document.createElementNS(SVG_NS,t)}
+
+function renderRoute(verts, mode) {
+  const preG = el('route-preview-g'), actG = el('route-active-g');
+  const pts = verts.map(v => `${v.cx},${v.cy}`).join(' ');
+  if(mode==='preview') {
+    preG.innerHTML=''; preG.style.display='';
+    actG.style.display='none';
+    const l=svgEl('polyline');
+    l.setAttribute('points',pts);l.setAttribute('fill','none');l.setAttribute('stroke','#2E7D32');
+    l.setAttribute('stroke-width','6');l.setAttribute('stroke-linecap','round');l.setAttribute('stroke-linejoin','round');
+    l.classList.add('route-preview'); preG.appendChild(l);
+  } else {
+    actG.innerHTML=''; actG.style.display=''; preG.style.display='none';
+    const bg=svgEl('polyline');
+    bg.setAttribute('points',pts);bg.setAttribute('fill','none');bg.setAttribute('stroke','#2E7D32');
+    bg.setAttribute('stroke-width','6');bg.setAttribute('stroke-linecap','round');bg.setAttribute('stroke-linejoin','round');bg.setAttribute('opacity','0.2');
+    actG.appendChild(bg);
+    const an=svgEl('polyline');
+    an.setAttribute('points',pts);an.setAttribute('fill','none');an.setAttribute('stroke','#2E7D32');
+    an.setAttribute('stroke-width','6');an.setAttribute('stroke-linecap','round');an.setAttribute('stroke-linejoin','round');
+    an.classList.add('route-animated'); actG.appendChild(an);
+    for(let i=1;i<verts.length-1;i++){
+      const c=svgEl('circle');c.setAttribute('cx',verts[i].cx);c.setAttribute('cy',verts[i].cy);
+      c.setAttribute('r','6');c.setAttribute('fill','white');c.setAttribute('stroke','#2E7D32');c.setAttribute('stroke-width','2.5');
+      actG.appendChild(c);
+    }
+  }
+}
+
+function clearRoute(){
+  el('route-preview-g').innerHTML='';el('route-preview-g').style.display='none';
+  el('route-active-g').innerHTML='';el('route-active-g').style.display='none';
+}
+
+function moveSvgGroup(gId, cx, cy) {
+  el(gId).setAttribute('transform', `translate(${cx},${cy})`);
+}
+
+
+// ══════════════════════════════════════════════════
+//  STORE MARKERS
+// ══════════════════════════════════════════════════
+function renderStoreMarkers() {
+  const g = el('store-markers-g'); g.innerHTML = '';
+  for(const [key, s] of Object.entries(STORES)) {
+    const v = VMAP[s.vertexId]; if(!v) continue;
+    const mg = svgEl('g'); mg.setAttribute('class','store-marker'); mg.setAttribute('data-store',key);
+    mg.onclick = () => selectStore(key);
+    const c = svgEl('circle');
+    c.setAttribute('cx',v.cx);c.setAttribute('cy',v.cy);c.setAttribute('r','16');
+    c.setAttribute('fill', CAT_COLORS[s.cat]||'#6b7280');c.setAttribute('opacity','0.35');
+    mg.appendChild(c);
+    const t = svgEl('text');
+    t.setAttribute('x',v.cx);t.setAttribute('y',v.cy+4);t.setAttribute('text-anchor','middle');
+    t.setAttribute('font-size','11');t.setAttribute('font-weight','700');t.setAttribute('fill','#1f2937');
+    t.setAttribute('pointer-events','none');t.textContent=s.logo;
+    mg.appendChild(t);
+    g.appendChild(mg);
+  }
+}
+
+
+// ══════════════════════════════════════════════════
+//  STEP GENERATION
+// ══════════════════════════════════════════════════
+function generateSteps(route, storeName) {
+  const verts = route.allVertices;
+  if(verts.length<2) return [{text:'You are at '+storeName,distance:0,icon:'destination'}];
+  const points = [];
+  for(let i=1;i<verts.length-1;i++){
+    const prev=verts[i-1],curr=verts[i],next=verts[i+1];
+    const ax=curr.cx-prev.cx,ay=curr.cy-prev.cy,bx=next.cx-curr.cx,by=next.cy-curr.cy;
+    const mA=Math.sqrt(ax*ax+ay*ay),mB=Math.sqrt(bx*bx+by*by);
+    if(mA<1||mB<1)continue;
+    const cross=ax*by-ay*bx,dot=ax*bx+ay*by,angle=Math.atan2(Math.abs(cross),dot);
+    if(angle>0.35) points.push({idx:i,action:cross>0?'right':'left',name:curr.name});
+    else if(curr.name&&curr.id!==verts[0].id) points.push({idx:i,action:'landmark',name:curr.name});
+  }
+  function segDist(f,t){let d=0;for(let j=f;j<t;j++)d+=dist(verts[j],verts[j+1]);return Math.round(d/SVG_SCALE);}
+  const steps=[];let pIdx=0;
+  for(const pt of points){
+    const m=segDist(pIdx,pt.idx);
+    if(pt.action==='left'||pt.action==='right'){
+      const dir=pt.action==='right'?'right':'left';
+      const lm=pt.name?' at '+pt.name:'';
+      steps.push({text:steps.length===0?'From Entrance, turn '+dir+lm:'Turn '+dir+lm,distance:m,icon:dir});
+    } else if(pt.action==='landmark'){
+      steps.push({text:steps.length===0?'From Entrance, walk past '+pt.name:'Continue past '+pt.name,distance:m,icon:'straight'});
+    }
+    pIdx=pt.idx;
+  }
+  const fd=segDist(pIdx,verts.length-1);
+  if(!steps.length) steps.push({text:'From Entrance, walk straight ahead',distance:fd,icon:'straight'});
+  else if(fd>3) steps.push({text:'Continue ahead',distance:fd,icon:'straight'});
+  steps.push({text:'Arrive at '+storeName,distance:0,icon:'destination'});
+  return steps;
+}
+
+function getStepIconSvg(icon){
+  const c='#2E7D32';
+  switch(icon){
+    case 'straight':return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 19V5m0 0l-5 5m5-5l5 5" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    case 'left':return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0l5-5m-5 5l5 5" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    case 'right':return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0l-5-5m5 5l-5 5" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    case 'destination':return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#dc2626"/><circle cx="12" cy="9" r="2" fill="white"/></svg>`;
+    default:return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" fill="${c}"/></svg>`;
+  }
+}
+
+function renderSteps(steps){
+  const c=el('step-list-container');c.innerHTML='';
+  steps.forEach((s,i)=>{
+    const isLast=i===steps.length-1;
+    const d=document.createElement('div');
+    d.id='step-'+(i+1);
+    d.className=i===0?'flex gap-3 p-2.5 rounded-xl bg-primary-50 border border-primary-200 mb-1 cursor-pointer':'flex gap-3 p-2.5 rounded-xl border border-transparent mb-1 cursor-pointer';
+    const num=isLast?`<div class="w-7 h-7 rounded-full bg-red-50 flex items-center justify-center shrink-0">${getStepIconSvg('destination')}</div>`
+      :`<div class="w-7 h-7 rounded-full ${i===0?'bg-primary-600':'bg-gray-100'} flex items-center justify-center shrink-0"><span class="${i===0?'text-white':'text-gray-500'} text-[10px] font-bold">${i+1}</span></div>`;
+    const conn=isLast?'':`<div class="w-0.5 flex-1 ${i===0?'bg-primary-200':'bg-gray-200'} mt-1"></div>`;
+    const dt=s.distance>0?`<p class="text-[10px] ${i===0?'text-primary-600 font-medium':'text-gray-400'} mt-0.5">${s.distance} m</p>`:(isLast?`<p class="text-[10px] text-gray-400 mt-0.5">Destination</p>`:'');
+    d.innerHTML=`<div class="flex flex-col items-center">${num}${conn}</div><div class="flex-1 ${isLast?'':'pb-3'}"><p class="text-xs ${i===0?'font-medium text-gray-900':'text-gray-600'}">${s.text}</p>${dt}</div>`;
+    d.onclick=isLast?()=>goState('ARRIVED'):()=>activateStep(i+1);
+    c.appendChild(d);
+  });
+}
+
+
+// ══════════════════════════════════════════════════
+//  STATE MACHINE
+// ══════════════════════════════════════════════════
+let currentState='IDLE',selectedStore=null,currentRoute=null,currentSteps=[],activeStepIdx=1;
+
+function goState(s,data){
+  currentState=s;
+  show('header-slim',['IDLE','STORE_SELECTED','ARRIVED'].includes(s));
+  show('header-planner',s==='ROUTE_PLANNING');
+  show('header-nav',s==='ACTIVE_NAV');
+  hide('sheet-store');hide('sheet-plan');hide('sheet-nav');hide('sheet-arrived');
+  el('arrived-check-g').style.display='none';
+  document.querySelectorAll('.store-marker').forEach(m=>m.classList.remove('highlighted'));
+  el('blue-pulse').classList.toggle('pulse-ring',s==='ACTIVE_NAV');
+  el('blue-pulse').classList.toggle('pulse-static',s!=='ACTIVE_NAV');
+
+  switch(s){
+    case 'IDLE':
+      setSheet(0);selectedStore=null;currentRoute=null;currentSteps=[];
+      clearRoute();el('blue-dot-g').style.display='none';el('dest-pin-g').style.display='none';
+      renderStoreMarkers();
+      break;
+    case 'STORE_SELECTED':
+      if(data){
+        selectedStore=data;const st=STORES[data];
+        el('sel-name').textContent=st.name;el('sel-cat').textContent=st.cat;
+        el('sel-desc').textContent=st.desc;el('sel-logo').textContent=st.logo;
+        el('sel-logo').style.color=st.logoBg==='#eab308'?'#111':'white';
+        el('sel-logo-bg').style.backgroundColor=st.logoBg;
+        document.querySelector(`[data-store="${data}"]`)?.classList.add('highlighted');
+      }
+      unhide('sheet-store');setSheet(190);
+      el('blue-dot-g').style.display='none';el('dest-pin-g').style.display='none';clearRoute();
+      break;
+    case 'ROUTE_PLANNING':{
+      const st=STORES[selectedStore];if(!st){goState('IDLE');return;}
+      el('plan-dest').textContent=st.name;
+      currentRoute=findRoute(selectedStore);
+      if(!currentRoute){goState('IDLE');return;}
+      currentSteps=generateSteps(currentRoute,st.name);
+      const meters=Math.round(currentRoute.totalDist/SVG_SCALE);
+      const minutes=Math.max(1,Math.ceil(meters/1.4/60));
+      el('plan-summary').textContent=`~${minutes} min · ${meters} m`;
+      el('plan-detail').textContent=`${currentSteps.length} steps · Shortest route`;
+      const uv=VMAP[USER_VERTEX],dv=VMAP[st.vertexId];
+      moveSvgGroup('blue-dot-g',uv.cx,uv.cy);el('blue-dot-g').style.display='';
+      moveSvgGroup('dest-pin-g',dv.cx,dv.cy-10);el('dest-pin-g').style.display='';
+      renderRoute(currentRoute.allVertices,'preview');
+      document.querySelector(`[data-store="${selectedStore}"]`)?.classList.add('highlighted');
+      unhide('sheet-plan');setSheet(Math.min(window.innerHeight*0.5,380));
+      break;
+    }
+    case 'ACTIVE_NAV':{
+      const st=STORES[selectedStore];if(!currentRoute){goState('IDLE');return;}
+      const meters=Math.round(currentRoute.totalDist/SVG_SCALE);
+      const minutes=Math.max(1,Math.ceil(meters/1.4/60));
+      el('nav-dest-name').textContent=st.name;el('nav-dest-detail').textContent=st.cat+' · '+currentSteps.length+' steps';
+      el('nav-time').textContent='~'+minutes+' min';el('nav-dist').textContent=meters+' m';
+      el('nav-progress').style.width='0%';el('nav-step-count').textContent='Step 1 of '+currentSteps.length;
+      renderRoute(currentRoute.allVertices,'active');renderSteps(currentSteps);
+      activeStepIdx=1;updateStepUI();
+      unhide('sheet-nav');setSheet(160);
+      break;
+    }
+    case 'ARRIVED':{
+      const st=STORES[selectedStore];
+      el('arrived-info').textContent=st.name+' · '+st.cat;
+      el('nav-progress').style.width='100%';
+      clearRoute();el('blue-dot-g').style.display='none';el('dest-pin-g').style.display='none';
+      const dv=VMAP[st.vertexId];moveSvgGroup('arrived-check-g',dv.cx,dv.cy-10);
+      el('arrived-check-g').style.display='';
+      unhide('sheet-arrived');setSheet(260);
+      break;
+    }
+  }
+}
+
+function activateStep(n){
+  activeStepIdx=n;updateStepUI();
+  el('nav-progress').style.width=((n/currentSteps.length)*100)+'%';
+  el('nav-step-count').textContent='Step '+n+' of '+currentSteps.length;
+  if(currentSteps[n-1]){
+    el('step-current-text').textContent=currentSteps[n-1].text;
+    el('step-current-meta').textContent=(currentSteps[n-1].distance>0?currentSteps[n-1].distance+' m · ':'')+'Step '+n+' of '+currentSteps.length;
+  }
+  setSheet(160);
+}
+
+function updateStepUI(){
+  for(let i=1;i<=currentSteps.length;i++){
+    const s=el('step-'+i);if(!s)continue;
+    s.className=i<activeStepIdx?'flex gap-3 p-2.5 rounded-xl border border-transparent mb-1 cursor-pointer opacity-40'
+      :i===activeStepIdx?'flex gap-3 p-2.5 rounded-xl bg-primary-50 border border-primary-200 mb-1 cursor-pointer'
+      :'flex gap-3 p-2.5 rounded-xl border border-transparent mb-1 cursor-pointer';
+  }
+}
+
+function selectStore(id){
+  if(currentState==='ACTIVE_NAV'||currentState==='ROUTE_PLANNING')return;
+  goState('STORE_SELECTED',id);
+}
+
+function endNav(){if(confirm('End navigation?'))goState('IDLE');}
+
+function navToNearest(type){
+  let candidates=[];
+  if(type==='restroom') candidates=['northwc','eastwc'];
+  else if(type==='exit') candidates=['entrance'];
+  else if(type==='food') candidates=['kfc','mcdonalds','starbucks'];
+  let best=null,bestDist=Infinity;
+  for(const key of candidates){
+    const st=STORES[key];if(!st)continue;
+    const r=dijkstra(USER_VERTEX,st.vertexId);
+    if(r.totalDist<bestDist){bestDist=r.totalDist;best=key;}
+  }
+  if(best){selectedStore=best;goState('ROUTE_PLANNING');}
+}
+
+
+// ══════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════
+function el(id){return document.getElementById(id)}
+function show(id,v){const e=el(id);e.classList.toggle('fade-in',v);e.classList.toggle('fade-out',!v)}
+function hide(id){el(id).classList.add('hidden')}
+function unhide(id){el(id).classList.remove('hidden')}
+function setSheet(h){el('sheet').style.height=h+'px'}
+
+
+// ══════════════════════════════════════════════════
+//  MAP ZOOM & PAN
+// ══════════════════════════════════════════════════
+const mapSvg=el('map-svg'),mapC=el('map-container');
+let scale=1,panX=0,panY=0,isPanning=false,startPanX=0,startPanY=0,startDist=0,startScale=1;
+function applyTransform(){mapSvg.style.transform=`translate(${panX}px,${panY}px) scale(${scale})`}
+function zoomIn(){scale=Math.min(scale*1.3,5);applyTransform()}
+function zoomOut(){scale=Math.max(scale/1.3,.4);applyTransform()}
+function recenter(){scale=1;panX=0;panY=0;applyTransform()}
+mapC.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){startDist=Math.hypot(e.touches[0].pageX-e.touches[1].pageX,e.touches[0].pageY-e.touches[1].pageY);startScale=scale}
+  else if(e.touches.length===1){isPanning=true;startPanX=e.touches[0].pageX-panX;startPanY=e.touches[0].pageY-panY}
+},{passive:true});
+mapC.addEventListener('touchmove',e=>{
+  if(e.touches.length===2){const d=Math.hypot(e.touches[0].pageX-e.touches[1].pageX,e.touches[0].pageY-e.touches[1].pageY);scale=Math.min(Math.max(startScale*(d/startDist),.4),5);applyTransform()}
+  else if(e.touches.length===1&&isPanning){panX=e.touches[0].pageX-startPanX;panY=e.touches[0].pageY-startPanY;applyTransform()}
+},{passive:true});
+mapC.addEventListener('touchend',()=>{isPanning=false});
+let md=false,msx,msy;
+mapC.addEventListener('mousedown',e=>{md=true;msx=e.clientX-panX;msy=e.clientY-panY});
+mapC.addEventListener('mousemove',e=>{if(md){panX=e.clientX-msx;panY=e.clientY-msy;applyTransform()}});
+mapC.addEventListener('mouseup',()=>{md=false});
+mapC.addEventListener('wheel',e=>{e.preventDefault();scale=Math.min(Math.max(scale+(e.deltaY>0?-.1:.1),.4),5);applyTransform()},{passive:false});
+mapC.addEventListener('click',e=>{
+  if(e.target.closest('.store-marker'))return;
+  if(currentState==='STORE_SELECTED')goState('IDLE');
+});
+
+
+// ══════════════════════════════════════════════════
+//  SHEET DRAG
+// ══════════════════════════════════════════════════
+const sheet=el('sheet'),handle=el('sheet-handle');
+let sTouchY=0,sStartH=0;
+handle.addEventListener('touchstart',e=>{sTouchY=e.touches[0].pageY;sStartH=sheet.offsetHeight;sheet.style.transition='none'},{passive:true});
+handle.addEventListener('touchmove',e=>{const dy=sTouchY-e.touches[0].pageY;const h=Math.max(0,Math.min(sStartH+dy,window.innerHeight*.85));sheet.style.height=h+'px'},{passive:true});
+handle.addEventListener('touchend',()=>{sheet.style.transition='';if(sheet.offsetHeight<80&&currentState==='STORE_SELECTED')goState('IDLE')});
+
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+renderStoreMarkers();
+goState('IDLE');
+</script>
+
+<!-- Page Navigator -->
+<div id="page-nav" class="fixed top-4 right-4 z-[9999]">
+  <button onclick="document.getElementById('nav-panel').classList.toggle('hidden')" class="w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div id="nav-panel" class="hidden mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-56 overflow-hidden">
+    <div class="px-3 py-2 bg-gray-50 border-b border-gray-200"><span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Screen Navigator</span></div>
+    <nav class="py-1 max-h-[70vh] overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 border-b border-gray-100"><span class="w-5 h-5 rounded bg-gray-800 text-white text-xs flex items-center justify-center font-bold">~</span> Index</a>
+      <a href="01-home.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">01</span> Home</a>
+      <a href="02-search-results.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">02</span> Search</a>
+      <a href="11-all-stores.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">11</span> All Stores</a>
+      <a href="03-store-profile.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">03</span> Store Profile</a>
+      <a href="04-navigation-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-blue-500 text-white text-xs flex items-center justify-center font-bold">04</span> Navigation</a>
+      <a href="05-restroom-finder.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"><span class="w-5 h-5 rounded bg-amber-500 text-white text-xs flex items-center justify-center font-bold">05</span> Restrooms</a>
+    </nav>
+    <div class="px-3 py-2 bg-gray-50 border-t border-gray-200 flex justify-between text-xs text-gray-400"><span>MallNav v2.0</span><span>Design Studies</span></div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('#nav-panel nav a').forEach(a=>{if(a.getAttribute('href')===location.pathname.split('/').pop()){a.classList.add('bg-emerald-50','text-emerald-700','font-medium');a.classList.remove('text-gray-600')}});
+  document.addEventListener('click',e=>{if(!document.getElementById('page-nav').contains(e.target))document.getElementById('nav-panel').classList.add('hidden')});
+</script>
+</body>
+</html>

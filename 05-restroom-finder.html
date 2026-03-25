@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MallNav — Restrooms</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#2E7D32',
+              50:  '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#2E7D32',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    #services-sheet { transition: transform 0.35s cubic-bezier(.4,0,.2,1); }
+    #services-backdrop { transition: opacity 0.3s ease; }
+
+    /* FAB button */
+    .fab-btn {
+      background: linear-gradient(135deg, #2E7D32 0%, #43a047 100%);
+      box-shadow:
+        0 4px 14px rgba(46, 125, 50, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fab-btn:active {
+      transform: translateX(-50%) scale(0.92);
+      box-shadow:
+        0 2px 8px rgba(46, 125, 50, 0.3),
+        0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    .fab-btn::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 9999px;
+      border: 2px solid rgba(46, 125, 50, 0.15);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-start justify-center">
+
+  <!-- MOBILE SHELL -->
+  <div id="app-shell" class="w-full max-w-[430px] mx-auto min-h-screen bg-gray-50 relative flex flex-col shadow-xl overflow-hidden">
+
+    <!-- ── STICKY HEADER ── -->
+    <div class="sticky top-0 z-40 bg-white shadow-sm">
+      <!-- Status bar -->
+      <div class="flex items-center justify-between px-5 pt-3 pb-1">
+        <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+          <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <!-- Back arrow + Title -->
+      <div class="flex items-center px-4 pb-3 pt-1">
+        <a href="javascript:history.back()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 19l-7-7 7-7" stroke="#1f2937" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <h1 class="flex-1 text-center text-[17px] font-bold text-gray-900 -ml-9">Restrooms</h1>
+      </div>
+    </div>
+
+    <!-- ── SCROLLABLE CONTENT ── -->
+    <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
+
+      <!-- Nearest Restroom Card (Highlighted) -->
+      <div class="mx-4 mt-4 relative bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 shadow-sm">
+        <!-- Nearest Badge -->
+        <span class="absolute top-3 right-3 bg-emerald-600 text-white text-[11px] font-semibold rounded-full px-2.5 py-0.5">Nearest</span>
+
+        <div class="flex items-start gap-3">
+          <!-- Restroom Icon -->
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+            <svg class="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M5.5 7a2 2 0 100-4 2 2 0 000 4zm0 1c-1.1 0-2 .45-2 1v6h1v5.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V15h1V9c0-.55-.9-1-2-1h1zm13-1a2 2 0 100-4 2 2 0 000 4zm1.5 1h-3c-.83 0-1.5.67-1.5 1.5V14h1.5v6.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V14H20.5V9.5c0-.83-.67-1.5-1.5-1.5z"/>
+              <rect x="10.5" y="3" width="3" height="18" rx="0.5" opacity="0.15"/>
+            </svg>
+          </div>
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-gray-900">Floor 1 Restroom</h3>
+            <p class="text-sm text-gray-500">Near Entrance A</p>
+            <div class="flex items-center gap-1 mt-1 text-sm text-emerald-700 font-medium">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13.5 5.5a2 2 0 10-4 0 2 2 0 004 0zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.5 7.5 0 0017 13v-2a5.4 5.4 0 00-4.4-1.8L11 9z"/>
+              </svg>
+              <span>~1 min walk</span>
+            </div>
+            <!-- Accessibility Icons -->
+            <div class="flex flex-wrap gap-2 mt-2">
+              <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full px-2 py-0.5">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 100 4 2 2 0 000-4zm-1 18.5a5.5 5.5 0 01-5.5-5.5h2a3.5 3.5 0 003.5 3.5V22h2v-3.5a3.5 3.5 0 003.5-3.5h2a5.5 5.5 0 01-5.5 5.5V22h-2zm4-10.5H8v-2h3V7h2v1h3v2h-1z"/></svg>
+                Wheelchair
+              </span>
+              <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-600 text-xs font-medium rounded-full px-2 py-0.5">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M16 4a2 2 0 10-4 0 2 2 0 004 0zM9 4a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm5 4H8c-1.1 0-2 .9-2 2v4h2v7h3v-7h1v7h3v-7h2v-4c0-1.1-.9-2-2-2zM6 8.5c-.6 0-1.1.2-1.5.6V8H3v4h1.5v5H6v-5h1V9.5c0-.6-.4-1-1-1z"/></svg>
+                Family
+              </span>
+              <span class="inline-flex items-center gap-1 bg-pink-50 text-pink-600 text-xs font-medium rounded-full px-2 py-0.5">
+                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 8a2 2 0 100-4 2 2 0 000 4zM7 9H4v7h2v5h3v-5h1V11c0-1.1-.9-2-2-2H7zm12 1h-5a1 1 0 00-1 1v3h1.5v6h3v-6H19v-3a1 1 0 00-1-1z"/></svg>
+                Baby Changing
+              </span>
+            </div>
+          </div>
+          <!-- Chevron -->
+          <div class="flex-shrink-0 flex items-center self-center">
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Label -->
+      <h2 class="mx-4 mt-5 mb-2 text-xs font-bold text-gray-500 uppercase tracking-widest">Other Restrooms</h2>
+
+      <!-- Other Restrooms List -->
+      <div class="mx-4 flex flex-col gap-3">
+
+        <!-- Card 2: Floor 1 West Wing -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5.5 7a2 2 0 100-4 2 2 0 000 4zm0 1c-1.1 0-2 .45-2 1v6h1v5.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V15h1V9c0-.55-.9-1-2-1h1zm13-1a2 2 0 100-4 2 2 0 000 4zm1.5 1h-3c-.83 0-1.5.67-1.5 1.5V14h1.5v6.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V14H20.5V9.5c0-.83-.67-1.5-1.5-1.5z"/>
+                <rect x="10.5" y="3" width="3" height="18" rx="0.5" opacity="0.15"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <h3 class="font-semibold text-gray-900">Floor 1 Restroom</h3>
+                <span class="text-[10px] font-bold bg-gray-100 text-gray-500 rounded-full px-2 py-0.5">F1</span>
+              </div>
+              <p class="text-sm text-gray-500">West Wing</p>
+              <div class="flex items-center gap-1 mt-1 text-sm text-gray-500">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 10-4 0 2 2 0 004 0zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.5 7.5 0 0017 13v-2a5.4 5.4 0 00-4.4-1.8L11 9z"/></svg>
+                <span>~2 min walk</span>
+              </div>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full px-2 py-0.5">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 100 4 2 2 0 000-4zm-1 18.5a5.5 5.5 0 01-5.5-5.5h2a3.5 3.5 0 003.5 3.5V22h2v-3.5a3.5 3.5 0 003.5-3.5h2a5.5 5.5 0 01-5.5 5.5V22h-2zm4-10.5H8v-2h3V7h2v1h3v2h-1z"/></svg>
+                  Wheelchair
+                </span>
+              </div>
+            </div>
+            <div class="flex-shrink-0 flex items-center self-center">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Floor 2 Center -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5.5 7a2 2 0 100-4 2 2 0 000 4zm0 1c-1.1 0-2 .45-2 1v6h1v5.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V15h1V9c0-.55-.9-1-2-1h1zm13-1a2 2 0 100-4 2 2 0 000 4zm1.5 1h-3c-.83 0-1.5.67-1.5 1.5V14h1.5v6.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V14H20.5V9.5c0-.83-.67-1.5-1.5-1.5z"/>
+                <rect x="10.5" y="3" width="3" height="18" rx="0.5" opacity="0.15"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <h3 class="font-semibold text-gray-900">Floor 2 Restroom</h3>
+                <span class="text-[10px] font-bold bg-gray-100 text-gray-500 rounded-full px-2 py-0.5">F2</span>
+              </div>
+              <p class="text-sm text-gray-500">Center</p>
+              <div class="flex items-center gap-1 mt-1 text-sm text-gray-500">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 10-4 0 2 2 0 004 0zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.5 7.5 0 0017 13v-2a5.4 5.4 0 00-4.4-1.8L11 9z"/></svg>
+                <span>~3 min walk</span>
+              </div>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full px-2 py-0.5">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 100 4 2 2 0 000-4zm-1 18.5a5.5 5.5 0 01-5.5-5.5h2a3.5 3.5 0 003.5 3.5V22h2v-3.5a3.5 3.5 0 003.5-3.5h2a5.5 5.5 0 01-5.5 5.5V22h-2zm4-10.5H8v-2h3V7h2v1h3v2h-1z"/></svg>
+                  Wheelchair
+                </span>
+                <span class="inline-flex items-center gap-1 bg-pink-50 text-pink-600 text-xs font-medium rounded-full px-2 py-0.5">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 8a2 2 0 100-4 2 2 0 000 4zM7 9H4v7h2v5h3v-5h1V11c0-1.1-.9-2-2-2H7zm12 1h-5a1 1 0 00-1 1v3h1.5v6h3v-6H19v-3a1 1 0 00-1-1z"/></svg>
+                  Baby Changing
+                </span>
+              </div>
+            </div>
+            <div class="flex-shrink-0 flex items-center self-center">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Floor 2 East Wing -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M5.5 7a2 2 0 100-4 2 2 0 000 4zm0 1c-1.1 0-2 .45-2 1v6h1v5.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V15h1V9c0-.55-.9-1-2-1h1zm13-1a2 2 0 100-4 2 2 0 000 4zm1.5 1h-3c-.83 0-1.5.67-1.5 1.5V14h1.5v6.5a.5.5 0 00.5.5h1a.5.5 0 00.5-.5V14H20.5V9.5c0-.83-.67-1.5-1.5-1.5z"/>
+                <rect x="10.5" y="3" width="3" height="18" rx="0.5" opacity="0.15"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-0.5">
+                <h3 class="font-semibold text-gray-900">Floor 2 Restroom</h3>
+                <span class="text-[10px] font-bold bg-gray-100 text-gray-500 rounded-full px-2 py-0.5">F2</span>
+              </div>
+              <p class="text-sm text-gray-500">East Wing</p>
+              <div class="flex items-center gap-1 mt-1 text-sm text-gray-500">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 5.5a2 2 0 10-4 0 2 2 0 004 0zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3A7.5 7.5 0 0017 13v-2a5.4 5.4 0 00-4.4-1.8L11 9z"/></svg>
+                <span>~4 min walk</span>
+              </div>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full px-2 py-0.5">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 100 4 2 2 0 000-4zm-1 18.5a5.5 5.5 0 01-5.5-5.5h2a3.5 3.5 0 003.5 3.5V22h2v-3.5a3.5 3.5 0 003.5-3.5h2a5.5 5.5 0 01-5.5 5.5V22h-2zm4-10.5H8v-2h3V7h2v1h3v2h-1z"/></svg>
+                  Wheelchair
+                </span>
+                <span class="inline-flex items-center gap-1 bg-purple-50 text-purple-600 text-xs font-medium rounded-full px-2 py-0.5">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M16 4a2 2 0 10-4 0 2 2 0 004 0zM9 4a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm5 4H8c-1.1 0-2 .9-2 2v4h2v7h3v-7h1v7h3v-7h2v-4c0-1.1-.9-2-2-2zM6 8.5c-.6 0-1.1.2-1.5.6V8H3v4h1.5v5H6v-5h1V9.5c0-.6-.4-1-1-1z"/></svg>
+                  Family
+                </span>
+                <span class="inline-flex items-center gap-1 bg-pink-50 text-pink-600 text-xs font-medium rounded-full px-2 py-0.5">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 8a2 2 0 100-4 2 2 0 000 4zM7 9H4v7h2v5h3v-5h1V11c0-1.1-.9-2-2-2H7zm12 1h-5a1 1 0 00-1 1v3h1.5v6h3v-6H19v-3a1 1 0 00-1-1z"/></svg>
+                  Baby Changing
+                </span>
+              </div>
+            </div>
+            <div class="flex-shrink-0 flex items-center self-center">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Accessibility Legend -->
+      <div class="mx-4 mt-5 mb-6">
+        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Accessibility Features</h3>
+        <div class="bg-white rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a2 2 0 100 4 2 2 0 000-4zm-1 18.5a5.5 5.5 0 01-5.5-5.5h2a3.5 3.5 0 003.5 3.5V22h2v-3.5a3.5 3.5 0 003.5-3.5h2a5.5 5.5 0 01-5.5 5.5V22h-2zm4-10.5H8v-2h3V7h2v1h3v2h-1z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">Wheelchair Accessible</p>
+              <p class="text-xs text-gray-500">Spacious stalls with grab bars and accessible sinks</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 24 24"><path d="M16 4a2 2 0 10-4 0 2 2 0 004 0zM9 4a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0zm5 4H8c-1.1 0-2 .9-2 2v4h2v7h3v-7h1v7h3v-7h2v-4c0-1.1-.9-2-2-2zM6 8.5c-.6 0-1.1.2-1.5.6V8H3v4h1.5v5H6v-5h1V9.5c0-.6-.4-1-1-1z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">Family Restroom</p>
+              <p class="text-xs text-gray-500">Private room for families with young children</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-pink-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-pink-600" fill="currentColor" viewBox="0 0 24 24"><path d="M14 8a2 2 0 100-4 2 2 0 000 4zM7 9H4v7h2v5h3v-5h1V11c0-1.1-.9-2-2-2H7zm12 1h-5a1 1 0 00-1 1v3h1.5v6h3v-6H19v-3a1 1 0 00-1-1z"/></svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900">Baby Changing Station</p>
+              <p class="text-xs text-gray-500">Fold-down changing table available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- END SCROLLABLE -->
+
+
+    <!-- ══════════════════════════════════════
+         BOTTOM NAV — Notched FAB Style
+         Home | Stores | [Search] | Map | Services
+         ══════════════════════════════════════ -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50">
+      <!-- Notched bar using SVG background -->
+      <div class="relative h-[72px]">
+        <!-- SVG notch background -->
+        <svg class="absolute inset-0 w-full h-full drop-shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" viewBox="0 0 430 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,14 L170,14 C176,14 180,14 184,18 C190,26 198,34 215,34 C232,34 240,26 246,18 C250,14 254,14 260,14 L430,14 L430,72 L0,72 Z" fill="white"/>
+        </svg>
+
+        <!-- FAB button (centered, floating above notch) -->
+        <a href="02-search-results.html" class="fab-btn absolute left-1/2 -translate-x-1/2 -top-4 w-[56px] h-[56px] rounded-full flex items-center justify-center z-10">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="2.5"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </a>
+        <span class="absolute left-1/2 -translate-x-1/2 bottom-2 text-[10px] font-bold text-primary-600 z-10 pointer-events-none">Search</span>
+
+        <!-- Nav items overlay -->
+        <div class="absolute inset-0 flex items-end pb-2 px-2">
+          <!-- Home -->
+          <a href="01-home.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-[10px] font-medium text-gray-400">Home</span>
+          </a>
+
+          <!-- Stores -->
+          <a href="11-all-stores.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l1-4h16l1 4" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9v10a2 2 0 002 2h14a2 2 0 002-2V9" stroke="#9ca3af" stroke-width="2"/><path d="M9 21V13h6v8" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-[10px] font-medium text-gray-400">Stores</span>
+          </a>
+
+          <!-- Center spacer for FAB -->
+          <div class="w-[76px] shrink-0"></div>
+
+          <!-- Map -->
+          <a href="04-navigation-guide.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/><line x1="8" y1="2" x2="8" y2="18" stroke="#9ca3af" stroke-width="2"/><line x1="16" y1="6" x2="16" y2="22" stroke="#9ca3af" stroke-width="2"/></svg>
+            <span class="text-[10px] font-medium text-gray-400">Map</span>
+          </a>
+
+          <!-- Services (subtly active — restrooms are under services) -->
+          <button onclick="toggleServices()" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.5" fill="#2E7D32"/><circle cx="12" cy="12" r="1.5" fill="#2E7D32"/><circle cx="19" cy="12" r="1.5" fill="#2E7D32"/><circle cx="12" cy="5" r="1.5" fill="#2E7D32"/><circle cx="12" cy="19" r="1.5" fill="#2E7D32"/><circle cx="5" cy="5" r="1.5" fill="#2E7D32"/><circle cx="19" cy="5" r="1.5" fill="#2E7D32"/><circle cx="5" cy="19" r="1.5" fill="#2E7D32"/><circle cx="19" cy="19" r="1.5" fill="#2E7D32"/></svg>
+            <span class="text-[10px] font-bold text-primary-600">Services</span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+
+    <!-- ══════════════════════════════════════
+         SERVICES BOTTOM SHEET
+         ══════════════════════════════════════ -->
+        <div id="services-backdrop" class="fixed inset-0 bg-black/40 z-[60] hidden" onclick="toggleServices()"></div>
+    <div id="services-sheet" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white rounded-t-2xl z-[70] shadow-2xl translate-y-full">
+      <div class="flex justify-center pt-3 pb-1" onclick="toggleServices()"><div class="w-9 h-1 rounded-full bg-gray-200"></div></div>
+      <div class="px-5 pt-1 pb-4"><h3 class="text-base font-bold text-gray-900">Mall Services</h3></div>
+      <div class="px-5 pb-8">
+        <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden">
+          <a href="04-navigation-guide.html?to=help-desk" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#374151" stroke-width="1.8"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Help Desk</p><p class="text-[11px] text-gray-400">Navigate to nearest help desk</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="05-restroom-finder.html" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="4" r="2" stroke="#374151" stroke-width="1.8"/><path d="M6 8h6v3l-1 7H7l-1-7V8z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><circle cx="17" cy="4" r="2" stroke="#374151" stroke-width="1.8"/><path d="M15 8h4l-1 5h-2l-1-5z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="15" y1="13" x2="14" y2="20" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="19" y1="13" x2="20" y2="20" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Restrooms</p><p class="text-[11px] text-gray-400">Find and navigate to nearest</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="04-navigation-guide.html?to=mother-baby" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="5" r="2.5" stroke="#374151" stroke-width="1.8"/><path d="M6.5 10h7l-.5 5H7l-.5-5z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="8" y1="15" x2="7.5" y2="21" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="15" x2="12.5" y2="21" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><circle cx="18" cy="9" r="1.5" stroke="#374151" stroke-width="1.5"/></svg></div>
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Mother & Baby</p><p class="text-[11px] text-gray-400">Nursing rooms on Floor 1 & 2</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="04-navigation-guide.html?to=parking" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#374151" stroke-width="1.8"/><path d="M9 7h4a3.5 3.5 0 010 7H9V7z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="9" y1="14" x2="9" y2="18" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Pay Parking</p><p class="text-[11px] text-gray-400">Navigate to nearest pay station</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="09-report-issue.html" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Report an Issue</p><p class="text-[11px] text-gray-400">Safety, cleanliness, or maintenance</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+          <a href="10-contact-us.html" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+            <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#374151" stroke-width="1.8"/></svg></div>
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Contact Us</p><p class="text-[11px] text-gray-400">Call, email, or send a message</p></div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  <!-- END MOBILE SHELL -->
+
+<script>
+  function toggleServices() {
+    const sheet = document.getElementById('services-sheet');
+    const backdrop = document.getElementById('services-backdrop');
+    const isOpen = !sheet.classList.contains('translate-y-full');
+    if (isOpen) {
+      sheet.classList.add('translate-y-full');
+      backdrop.classList.remove('opacity-100');
+      backdrop.classList.add('opacity-0');
+      setTimeout(() => backdrop.classList.add('hidden'), 300);
+    } else {
+      backdrop.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        backdrop.classList.remove('opacity-0');
+        backdrop.classList.add('opacity-100');
+        sheet.classList.remove('translate-y-full');
+      });
+    }
+  }
+</script>
+
+<!-- Page Navigator -->
+<div id="page-nav" class="fixed top-4 right-4 z-[9999]">
+  <button onclick="document.getElementById('nav-panel').classList.toggle('hidden')"
+          class="w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  <div id="nav-panel" class="hidden mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-56 overflow-hidden">
+    <div class="px-3 py-2 bg-gray-50 border-b border-gray-200">
+      <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Screen Navigator</span>
+    </div>
+    <nav class="py-1 max-h-[70vh] overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-b border-gray-100">
+        <span class="w-5 h-5 rounded bg-gray-800 text-white text-xs flex items-center justify-center font-bold">~</span>
+        Index
+      </a>
+      <a href="shared-layout.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-purple-500 text-white text-xs flex items-center justify-center font-bold">DS</span>
+        Design System
+      </a>
+      <a href="01-home.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">01</span>
+        Home
+      </a>
+      <a href="02-search-results.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">02</span>
+        Search Results
+      </a>
+      <a href="03-store-profile.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">03</span>
+        Store Profile
+      </a>
+      <a href="04-navigation-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-blue-500 text-white text-xs flex items-center justify-center font-bold">04</span>
+        Navigation Guide
+      </a>
+      <a href="05-restroom-finder.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-amber-500 text-white text-xs flex items-center justify-center font-bold">05</span>
+        Restroom Finder
+      </a>
+      <a href="07-mall-survey.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-gray-500 text-white text-xs flex items-center justify-center font-bold">07</span>
+        Mall Survey
+      </a>
+      <a href="08-error-page.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-red-500 text-white text-xs flex items-center justify-center font-bold">08</span>
+        Error Page
+      </a>
+    </nav>
+    <div class="px-3 py-2 bg-gray-50 border-t border-gray-200 flex justify-between text-xs text-gray-400">
+      <span>MallNav v2.0</span>
+      <span>Design Studies</span>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('#nav-panel nav a').forEach(a => {
+    if (a.getAttribute('href') === location.pathname.split('/').pop()) {
+      a.classList.add('bg-emerald-50', 'text-emerald-700', 'font-medium');
+      a.classList.remove('text-gray-600');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('page-nav').contains(e.target)) {
+      document.getElementById('nav-panel').classList.add('hidden');
+    }
+  });
+</script>
+
+</body>
+</html>

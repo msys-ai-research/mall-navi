@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>MallNav — Report Issue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: { DEFAULT:'#2E7D32',50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',400:'#4ade80',500:'#22c55e',600:'#2E7D32',700:'#15803d',800:'#166534',900:'#14532d' }}}}}
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar{display:none} .no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-start justify-center">
+  <div class="w-full max-w-[430px] mx-auto min-h-screen bg-gray-50 relative flex flex-col shadow-xl overflow-hidden">
+
+    <!-- Status bar + header -->
+    <div class="sticky top-0 z-40 bg-white shadow-sm">
+      <div class="flex items-center justify-between px-5 pt-3 pb-1">
+        <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+          <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+          <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+      <div class="px-4 pb-3 pt-1 flex items-center gap-3">
+        <a href="01-home.html" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition -ml-1">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15l-5-5 5-5" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <h1 class="flex-1 text-center text-base font-bold text-gray-900">Report an Issue</h1>
+        <div class="w-9 h-9"></div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto no-scrollbar pb-12">
+      <div class="px-5 pt-4">
+        <p class="text-sm text-gray-500">Help us keep Greenfield Mall safe and clean. Select a category and describe the issue.</p>
+      </div>
+
+      <!-- Category selection -->
+      <div class="px-5 pt-5">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Issue Category</label>
+        <div class="grid grid-cols-2 gap-2 mt-3" id="issue-cats">
+          <button onclick="selectCat(this)" class="issue-cat flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-3 text-left hover:border-gray-300 transition bg-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><path d="M12 9v4m0 4h.01M4.93 4.93l14.14 14.14" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="10" stroke="#6b7280" stroke-width="2"/></svg>
+            <span class="text-xs font-medium text-gray-700">Safety Hazard</span>
+          </button>
+          <button onclick="selectCat(this)" class="issue-cat flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-3 text-left hover:border-gray-300 transition bg-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><path d="M3 6h18M3 12h18M3 18h18" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="text-xs font-medium text-gray-700">Cleanliness</span>
+          </button>
+          <button onclick="selectCat(this)" class="issue-cat flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-3 text-left hover:border-gray-300 transition bg-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><rect x="3" y="11" width="18" height="10" rx="2" stroke="#6b7280" stroke-width="2"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="text-xs font-medium text-gray-700">Security</span>
+          </button>
+          <button onclick="selectCat(this)" class="issue-cat flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-3 text-left hover:border-gray-300 transition bg-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-xs font-medium text-gray-700">Maintenance</span>
+          </button>
+          <button onclick="selectCat(this)" class="issue-cat flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-3 text-left hover:border-gray-300 transition bg-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="text-xs font-medium text-gray-700">Electrical</span>
+          </button>
+          <button onclick="selectCat(this)" class="issue-cat flex items-center gap-2.5 border border-gray-200 rounded-xl px-3 py-3 text-left hover:border-gray-300 transition bg-white">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="shrink-0"><circle cx="12" cy="12" r="10" stroke="#6b7280" stroke-width="2"/><path d="M8 15s1.5 2 4 2 4-2 4-2" stroke="#6b7280" stroke-width="2" stroke-linecap="round"/><line x1="9" y1="9" x2="9.01" y2="9" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"/><line x1="15" y1="9" x2="15.01" y2="9" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <span class="text-xs font-medium text-gray-700">Other</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="px-5 pt-5">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</label>
+        <div class="mt-2 flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-3">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="shrink-0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#9ca3af" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="#9ca3af" stroke-width="2"/></svg>
+          <span class="text-sm text-gray-700">Near Entrance A, Floor 1</span>
+          <span class="ml-auto text-[10px] font-semibold text-primary-600 uppercase">Change</span>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="px-5 pt-5">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</label>
+        <textarea class="mt-2 w-full bg-white border border-gray-200 rounded-xl px-3 py-3 text-sm text-gray-700 placeholder-gray-400 outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-300 transition resize-none h-28" placeholder="Describe the issue in detail..."></textarea>
+      </div>
+
+      <!-- Photo upload -->
+      <div class="px-5 pt-4">
+        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Attach Photo (optional)</label>
+        <div class="mt-2 border-2 border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2 bg-white hover:border-gray-300 transition cursor-pointer">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#9ca3af" stroke-width="1.5"/><circle cx="8.5" cy="8.5" r="1.5" fill="#9ca3af"/><path d="M21 15l-5-5L5 21" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="text-xs text-gray-400">Tap to add a photo</span>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="px-5 pt-6 pb-8">
+        <button onclick="showSuccess()" class="w-full bg-primary-600 text-white font-semibold py-3.5 rounded-xl text-sm shadow-sm hover:bg-primary-700 transition">Submit Report</button>
+      </div>
+
+      <!-- Success state (hidden) -->
+      <div id="success-state" class="hidden px-5 pb-12">
+        <div class="bg-white rounded-2xl p-8 flex flex-col items-center text-center shadow-sm border border-gray-100">
+          <div class="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center mb-4">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900">Report Submitted</h3>
+          <p class="text-sm text-gray-500 mt-1">Thank you. Our team will review this shortly.</p>
+          <p class="text-xs text-gray-400 mt-3">Reference: #RPT-20260324-0042</p>
+          <a href="01-home.html" class="mt-5 text-sm font-semibold text-primary-600">Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  function selectCat(el) {
+    document.querySelectorAll('.issue-cat').forEach(b => {
+      b.classList.remove('border-primary-600','bg-primary-50');
+      b.classList.add('border-gray-200','bg-white');
+      b.querySelector('svg').querySelectorAll('*').forEach(p => { p.setAttribute('stroke','#6b7280'); p.removeAttribute('fill'); });
+      b.querySelector('span').classList.remove('text-primary-700'); b.querySelector('span').classList.add('text-gray-700');
+    });
+    el.classList.remove('border-gray-200','bg-white');
+    el.classList.add('border-primary-600','bg-primary-50');
+    el.querySelector('svg').querySelectorAll('[stroke]').forEach(p => p.setAttribute('stroke','#2E7D32'));
+    el.querySelector('span').classList.remove('text-gray-700'); el.querySelector('span').classList.add('text-primary-700');
+  }
+  function showSuccess() {
+    document.getElementById('success-state').classList.remove('hidden');
+    document.getElementById('success-state').scrollIntoView({ behavior:'smooth' });
+  }
+</script>
+</body>
+</html>

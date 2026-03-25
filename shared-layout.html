@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MallNav — Design System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#2E7D32',
+              50:  '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              400: '#4ade80',
+              500: '#22c55e',
+              600: '#2E7D32',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @keyframes adsScroll {
+      0%, 28%   { transform: translateX(0); }
+      33%, 61%  { transform: translateX(-33.333%); }
+      66%, 94%  { transform: translateX(-66.666%); }
+      100%      { transform: translateX(0); }
+    }
+    .ads-track-demo { animation: adsScroll 12s infinite; }
+
+    .fab-btn {
+      background: linear-gradient(135deg, #2E7D32 0%, #43a047 100%);
+      box-shadow:
+        0 4px 14px rgba(46, 125, 50, 0.4),
+        0 1px 3px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+    .fab-btn::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 9999px;
+      border: 2px solid rgba(46, 125, 50, 0.15);
+      pointer-events: none;
+    }
+
+    #services-sheet-demo { transition: transform 0.35s cubic-bezier(.4,0,.2,1); }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- PAGE HEADER -->
+  <div class="max-w-3xl mx-auto px-6 pt-10 pb-6">
+    <div class="flex items-center gap-3 mb-1">
+      <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
+        <span class="text-white font-extrabold text-sm">M</span>
+      </div>
+      <span class="text-xs font-semibold uppercase tracking-widest text-gray-400">MallNav</span>
+    </div>
+    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight mt-2">Design System</h1>
+    <p class="text-sm text-gray-500 mt-1">Component reference extracted from the home screen design language.</p>
+  </div>
+
+  <div class="max-w-3xl mx-auto px-6 pb-20 space-y-6">
+
+    <!-- ══════════════════════════════════
+         1. COLOR PALETTE
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">1 — Color Palette</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+
+        <!-- Primary scale -->
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Primary (Green)</p>
+        <div class="grid grid-cols-9 gap-1.5 mb-5">
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#f0fdf4] border border-gray-100"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">50</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#dcfce7]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">100</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#bbf7d0]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">200</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#4ade80]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">400</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#22c55e]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">500</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#2E7D32]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">600 ★</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#15803d]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">700</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#166534]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">800</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-[#14532d]"></div>
+            <span class="text-[9px] text-gray-400 leading-tight text-center">900</span>
+          </div>
+        </div>
+
+        <!-- Gray scale -->
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Gray Scale</p>
+        <div class="grid grid-cols-8 gap-1.5 mb-5">
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-50 border border-gray-100"></div>
+            <span class="text-[9px] text-gray-400 text-center">50</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-100"></div>
+            <span class="text-[9px] text-gray-400 text-center">100</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-200"></div>
+            <span class="text-[9px] text-gray-400 text-center">200</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-400"></div>
+            <span class="text-[9px] text-gray-400 text-center">400</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-500"></div>
+            <span class="text-[9px] text-gray-400 text-center">500</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-700"></div>
+            <span class="text-[9px] text-gray-400 text-center">700</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-800"></div>
+            <span class="text-[9px] text-gray-400 text-center">800</span>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-full aspect-square rounded-lg bg-gray-900"></div>
+            <span class="text-[9px] text-gray-400 text-center">900</span>
+          </div>
+        </div>
+
+        <!-- Accent colors -->
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Accent Colors</p>
+        <div class="grid grid-cols-6 gap-3">
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-full h-10 rounded-lg bg-blue-500"></div>
+            <span class="text-[10px] text-gray-500">Blue</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-full h-10 rounded-lg bg-amber-400"></div>
+            <span class="text-[10px] text-gray-500">Amber</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-full h-10 rounded-lg bg-pink-400"></div>
+            <span class="text-[10px] text-gray-500">Pink</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-full h-10 rounded-lg bg-violet-500"></div>
+            <span class="text-[10px] text-gray-500">Violet</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-full h-10 rounded-lg bg-cyan-500"></div>
+            <span class="text-[10px] text-gray-500">Cyan</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-full h-10 rounded-lg bg-emerald-500"></div>
+            <span class="text-[10px] text-gray-500">Emerald</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         2. TYPOGRAPHY
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">2 — Typography</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-xl font-extrabold</span>
+          <span class="text-xl font-extrabold text-gray-900 tracking-tight">Greenfield Mall</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-base font-bold</span>
+          <span class="text-base font-bold text-gray-900">Explore Categories</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-sm font-bold</span>
+          <span class="text-sm font-bold text-white bg-gray-800 px-2 py-0.5 rounded">Nike Store</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-sm text-gray-800</span>
+          <span class="text-sm text-gray-800">Search stores, food, services...</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-xs font-semibold</span>
+          <span class="text-xs font-semibold text-gray-700">Food &amp; Dining</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-xs font-medium</span>
+          <span class="text-xs font-medium text-white bg-primary-600 px-2 py-0.5 rounded">You are near Entrance A</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-[11px] font-semibold</span>
+          <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-[10px] font-bold badge</span>
+          <span class="inline-block bg-yellow-400 text-yellow-900 text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5">This Weekend</span>
+        </div>
+        <div class="flex items-baseline gap-4">
+          <span class="text-[10px] font-mono text-gray-300 w-32 shrink-0">text-[10px] tracking-widest</span>
+          <span class="text-white/60 text-[10px] font-medium tracking-widest uppercase bg-gray-700 px-2 py-0.5 rounded">Mall Directory</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         3. STATUS BAR
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">3 — Status Bar</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white border border-gray-100 rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-5 pt-3 pb-2">
+            <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+            <div class="flex items-center gap-1.5">
+              <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+              <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+              <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3">Simulated iOS status bar — time left, signal/wifi/battery icons right. Used at top of every sticky header.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         4. STICKY HEADER — VARIANTS
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">4 — Sticky Header</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
+
+        <!-- Variant A: Home header with search -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Variant A — Home (with search bar)</p>
+          <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between px-5 pt-3 pb-1">
+              <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+              <div class="flex items-center gap-1.5">
+                <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+                <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+                <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+            <div class="px-4 pb-3 pt-1">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#9ca3af" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <input type="text" placeholder="Search stores, food, services..."
+                  class="w-full bg-gray-100 rounded-full pl-10 pr-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-primary-200 focus:bg-white transition" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Variant B: Inner page header -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Variant B — Inner page (back arrow + title)</p>
+          <div class="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between px-5 pt-3 pb-1">
+              <span class="text-[11px] font-semibold text-gray-800">9:41</span>
+              <div class="flex items-center gap-1.5">
+                <svg width="17" height="12" viewBox="0 0 17 12" fill="#1f2937"><rect x="0" y="7" width="3" height="5" rx="0.5"/><rect x="4.5" y="5" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="10" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.25"/></svg>
+                <svg width="16" height="12" viewBox="0 0 20 14" fill="none"><path d="M10 10.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" fill="#1f2937"/><path d="M6.2 7.8A5.4 5.4 0 0110 6.3c1.5 0 2.8.55 3.8 1.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round"/><path d="M3 4.5A9 9 0 0110 2a9 9 0 017 2.5" stroke="#1f2937" stroke-width="1.7" stroke-linecap="round" opacity="0.4"/></svg>
+                <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="0.5" y="0.5" width="20" height="11" rx="2.5" stroke="#1f2937" stroke-width="1"/><rect x="2" y="2" width="15" height="8" rx="1.5" fill="#1f2937"/><path d="M21.5 4v4" stroke="#1f2937" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+            </div>
+            <div class="px-4 pb-3 pt-1 flex items-center gap-3">
+              <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <span class="text-base font-bold text-gray-900">Store Profile</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         5. LOCATION BAR
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">5 — Location Bar</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-primary-600 px-4 py-2.5 flex items-center gap-2 rounded-xl">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="shrink-0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="white" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.5" stroke="white" stroke-width="2"/></svg>
+          <span class="text-white text-xs font-medium flex-1">You are near <strong>Entrance A, Floor 1</strong></span>
+          <button class="text-white/70 text-[10px] font-semibold uppercase tracking-wider hover:text-white transition">Change</button>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3">Full-width green bar. Pin icon left, location text center, "Change" action right. Uses <code class="bg-gray-100 px-1 rounded text-[10px]">bg-primary-600</code>.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         6. CATEGORY GRID
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">6 — Category Grid</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="grid grid-cols-3 gap-y-5 gap-x-2 max-w-xs mx-auto">
+          <!-- Food & Dining -->
+          <!-- Fashion -->
+          <a href="02-search-results.html" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-full bg-pink-50 border border-pink-100 flex items-center justify-center shadow-sm">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M15.5 2H8.5L5 9h14l-3.5-7z" stroke="#db2777" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9v10a2 2 0 002 2h10a2 2 0 002-2V9" stroke="#db2777" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9v3a3 3 0 006 0V9" stroke="#db2777" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <span class="text-xs font-semibold text-gray-700">Fashion</span>
+          </a>
+          <!-- Electronics -->
+          <a href="02-search-results.html" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shadow-sm">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="17" rx="2" stroke="#2563eb" stroke-width="1.8"/><line x1="12" y1="19" x2="12" y2="19.01" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/><line x1="9" y1="22" x2="15" y2="22" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+            <span class="text-xs font-semibold text-gray-700">Electronics</span>
+          </a>
+          <!-- Entertainment -->
+          <a href="02-search-results.html" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-full bg-purple-50 border border-purple-100 flex items-center justify-center shadow-sm">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2" stroke="#7c3aed" stroke-width="1.8"/><path d="M10 9l5 3-5 3V9z" fill="#7c3aed" stroke="#7c3aed" stroke-width="1" stroke-linejoin="round"/><line x1="8" y1="21" x2="16" y2="21" stroke="#7c3aed" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="18" x2="12" y2="21" stroke="#7c3aed" stroke-width="1.8"/></svg>
+            </div>
+            <span class="text-xs font-semibold text-gray-700">Entertainment</span>
+          </a>
+          <!-- Health & Beauty -->
+          <a href="02-search-results.html" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center shadow-sm">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="#e11d48" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-xs font-semibold text-gray-700">Health &amp; Beauty</span>
+          </a>
+          <!-- Home & Living -->
+          <a href="02-search-results.html" class="flex flex-col items-center gap-1.5">
+            <div class="w-16 h-16 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center shadow-sm">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="#d97706" stroke-width="1.8" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="text-xs font-semibold text-gray-700">Home &amp; Living</span>
+          </a>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-5 text-center">3×2 grid. Each cell: <code class="bg-gray-100 px-1 rounded text-[10px]">w-16 h-16 rounded-full</code> tinted circle + <code class="bg-gray-100 px-1 rounded text-[10px]">text-xs font-semibold</code> label below.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         7. STORE CARD (Featured)
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">7 — Store Card</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+          <a href="03-store-profile.html" class="relative rounded-2xl overflow-hidden shadow-md h-[200px]">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80'); background-color: #374151;"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="relative z-10 flex flex-col justify-end h-full p-3">
+              <span class="text-[10px] font-bold text-white/60 uppercase tracking-wider">Fashion</span>
+              <p class="text-white font-bold text-sm">Nike Store</p>
+              <span class="text-white/50 text-[10px]">Floor 2</span>
+            </div>
+          </a>
+          <a href="03-store-profile.html" class="relative rounded-2xl overflow-hidden shadow-md h-[200px]">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&q=80'); background-color: #374151;"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div class="relative z-10 flex flex-col justify-end h-full p-3">
+              <span class="text-[10px] font-bold text-white/60 uppercase tracking-wider">Beauty</span>
+              <p class="text-white font-bold text-sm">Sephora</p>
+              <span class="text-white/50 text-[10px]">Floor 1</span>
+            </div>
+          </a>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-4 text-center">Tall image card: <code class="bg-gray-100 px-1 rounded text-[10px]">rounded-2xl h-[200px]</code>, full-bleed photo, gradient overlay from-black/80, category + name + floor text in bottom-left.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         8. MOVIE CARD
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">8 — Movie Card</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-1">
+          <div class="w-[140px] shrink-0">
+            <div class="relative rounded-xl overflow-hidden shadow-md h-[200px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1535016120720-40c646be5580?w=300&q=80'); background-color: #1a1a2e;">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-3">
+                <p class="text-white font-bold text-xs leading-tight">Galactic Horizon</p>
+                <p class="text-white/50 text-[10px] mt-0.5">Sci-Fi / Action</p>
+              </div>
+            </div>
+          </div>
+          <div class="w-[140px] shrink-0">
+            <div class="relative rounded-xl overflow-hidden shadow-md h-[200px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&q=80'); background-color: #2a1a1a;">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-3">
+                <p class="text-white font-bold text-xs leading-tight">The Last Promise</p>
+                <p class="text-white/50 text-[10px] mt-0.5">Drama / Romance</p>
+              </div>
+            </div>
+          </div>
+          <div class="w-[140px] shrink-0">
+            <div class="relative rounded-xl overflow-hidden shadow-md h-[200px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&q=80'); background-color: #1a2a1a;">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent"></div>
+              <div class="absolute bottom-0 left-0 right-0 p-3">
+                <p class="text-white font-bold text-xs leading-tight">Shadow Runner</p>
+                <p class="text-white/50 text-[10px] mt-0.5">Thriller</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3 text-center">Horizontal scroll row. Each card: <code class="bg-gray-100 px-1 rounded text-[10px]">w-[140px] h-[200px] rounded-xl</code>, title + genre overlay at bottom.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         9. AD BANNER SLIDER
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">9 — Ad Banner Slider</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="relative overflow-hidden rounded-2xl shadow-lg h-[120px]">
+          <div class="ads-track-demo flex h-full" style="width: 300%">
+            <div class="h-full shrink-0 relative bg-gradient-to-br from-emerald-500 to-teal-600 p-5 flex flex-col justify-center" style="width:33.333%">
+              <div class="absolute -right-6 -top-6 w-32 h-32 rounded-full bg-white opacity-[0.06]"></div>
+              <span class="inline-block bg-yellow-400 text-yellow-900 text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5 mb-1 w-fit">This Weekend</span>
+              <h3 class="text-white text-lg font-extrabold leading-tight">Spring Sale — 50% Off</h3>
+              <p class="text-white/70 text-xs mt-0.5">At 40+ stores mall-wide</p>
+            </div>
+            <div class="h-full shrink-0 relative bg-gradient-to-br from-indigo-500 to-purple-600 p-5 flex flex-col justify-center" style="width:33.333%">
+              <div class="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white opacity-[0.06]"></div>
+              <span class="inline-block bg-pink-400 text-pink-900 text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5 mb-1 w-fit">New Opening</span>
+              <h3 class="text-white text-lg font-extrabold leading-tight">Apple Store is Here</h3>
+              <p class="text-white/70 text-xs mt-0.5">Floor 2, Center Atrium</p>
+            </div>
+            <div class="h-full shrink-0 relative bg-gradient-to-br from-orange-500 to-red-500 p-5 flex flex-col justify-center" style="width:33.333%">
+              <div class="absolute -left-6 -top-6 w-28 h-28 rounded-full bg-white opacity-[0.06]"></div>
+              <span class="inline-block bg-yellow-300 text-yellow-900 text-[10px] font-bold uppercase tracking-wider rounded-full px-2.5 py-0.5 mb-1 w-fit">Limited Time</span>
+              <h3 class="text-white text-lg font-extrabold leading-tight">Buy 1 Get 1 Free</h3>
+              <p class="text-white/70 text-xs mt-0.5">Nike Store — all sneakers</p>
+            </div>
+          </div>
+          <div class="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div class="w-4 h-1.5 rounded-full bg-white"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3 text-center">3-slide CSS auto-scroll. <code class="bg-gray-100 px-1 rounded text-[10px]">h-[120px] rounded-2xl</code>, dot indicators bottom-center. Each slide is a gradient with a subtle circle decoration, badge pill, headline, and subtitle.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         10. BOTTOM NAVIGATION
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">10 — Bottom Navigation</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="relative h-[72px] max-w-[430px] mx-auto">
+          <svg class="absolute inset-0 w-full h-full drop-shadow-[0_-4px_12px_rgba(0,0,0,0.08)]" viewBox="0 0 430 72" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,14 L170,14 C176,14 180,14 184,18 C190,26 198,34 215,34 C232,34 240,26 246,18 C250,14 254,14 260,14 L430,14 L430,72 L0,72 Z" fill="white"/>
+          </svg>
+          <!-- FAB -->
+          <button class="fab-btn absolute left-1/2 -translate-x-1/2 -top-4 w-[56px] h-[56px] rounded-full flex items-center justify-center z-10">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="white" stroke-width="2.5"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </button>
+          <span class="absolute left-1/2 -translate-x-1/2 bottom-2 text-[10px] font-bold text-primary-600 z-10 pointer-events-none">Search</span>
+          <!-- Nav items -->
+          <div class="absolute inset-0 flex items-end pb-2 px-2">
+            <a href="01-home.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="#dcfce7" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round"/><polyline points="9 22 9 12 15 12 15 22" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="text-[10px] font-bold text-primary-600">Home</span>
+            </a>
+            <a href="02-search-results.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l1-4h16l1 4" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9v10a2 2 0 002 2h14a2 2 0 002-2V9" stroke="#9ca3af" stroke-width="2"/><path d="M9 21V13h6v8" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="text-[10px] font-medium text-gray-400">Stores</span>
+            </a>
+            <div class="w-[76px] shrink-0"></div>
+            <a href="04-navigation-guide.html" class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z" stroke="#9ca3af" stroke-width="2" stroke-linejoin="round"/><line x1="8" y1="2" x2="8" y2="18" stroke="#9ca3af" stroke-width="2"/><line x1="16" y1="6" x2="16" y2="22" stroke="#9ca3af" stroke-width="2"/></svg>
+              <span class="text-[10px] font-medium text-gray-400">Map</span>
+            </a>
+            <button class="flex-1 flex flex-col items-center justify-center gap-0.5 pb-0.5">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.5" fill="#9ca3af"/><circle cx="12" cy="12" r="1.5" fill="#9ca3af"/><circle cx="19" cy="12" r="1.5" fill="#9ca3af"/><circle cx="12" cy="5" r="1.5" fill="#9ca3af"/><circle cx="12" cy="19" r="1.5" fill="#9ca3af"/><circle cx="5" cy="5" r="1.5" fill="#9ca3af"/><circle cx="19" cy="5" r="1.5" fill="#9ca3af"/><circle cx="5" cy="19" r="1.5" fill="#9ca3af"/><circle cx="19" cy="19" r="1.5" fill="#9ca3af"/></svg>
+              <span class="text-[10px] font-medium text-gray-400">Services</span>
+            </button>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-4 text-center">Notched SVG bar with centered FAB floating above. Active tab uses <code class="bg-gray-100 px-1 rounded text-[10px]">text-primary-600 font-bold</code>, inactive uses <code class="bg-gray-100 px-1 rounded text-[10px]">text-gray-400</code>. Items: Home | Stores | [FAB Search] | Map | Services.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         11. SERVICES BOTTOM SHEET
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">11 — Services Bottom Sheet</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <!-- Inline static preview (no overlay/animation for doc page) -->
+        <div class="bg-white rounded-t-2xl border border-gray-100 shadow-inner overflow-hidden">
+          <div class="flex justify-center pt-3 pb-2">
+            <div class="w-10 h-1 rounded-full bg-gray-300"></div>
+          </div>
+          <div class="px-5 pt-1 pb-4">
+            <h3 class="text-base font-bold text-gray-900">Mall Services</h3>
+          </div>
+          <div class="px-5 pb-6">
+            <div class="bg-white rounded-xl border border-gray-100 divide-y divide-gray-100 overflow-hidden">
+              <a href="#" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#374151" stroke-width="1.8"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Help Desk</p><p class="text-[11px] text-gray-400">Navigate to nearest help desk</p></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </a>
+              <a href="#" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="4" r="2" stroke="#374151" stroke-width="1.8"/><path d="M6 8h6v3l-1 7H7l-1-7V8z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><circle cx="17" cy="4" r="2" stroke="#374151" stroke-width="1.8"/><path d="M15 8h4l-1 5h-2l-1-5z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Restrooms</p><p class="text-[11px] text-gray-400">Find and navigate to nearest</p></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </a>
+              <a href="#" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="5" r="2.5" stroke="#374151" stroke-width="1.8"/><path d="M6.5 10h7l-.5 5H7l-.5-5z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><circle cx="18" cy="9" r="1.5" stroke="#374151" stroke-width="1.5"/></svg></div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Mother &amp; Baby</p><p class="text-[11px] text-gray-400">Nursing rooms on Floor 1 &amp; 2</p></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </a>
+              <a href="#" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#374151" stroke-width="1.8"/><path d="M9 7h4a3.5 3.5 0 010 7H9V7z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="9" y1="14" x2="9" y2="18" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Pay Parking</p><p class="text-[11px] text-gray-400">Navigate to nearest pay station</p></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </a>
+              <a href="#" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#374151" stroke-width="1.8" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="#374151" stroke-width="1.8" stroke-linecap="round"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="#374151" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Report an Issue</p><p class="text-[11px] text-gray-400">Safety, cleanliness, or maintenance</p></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </a>
+              <a href="#" class="flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-50 transition">
+                <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" stroke="#374151" stroke-width="1.8"/></svg></div>
+                <div class="flex-1 min-w-0"><p class="text-sm font-medium text-gray-900">Contact Us</p><p class="text-[11px] text-gray-400">Call, email, or send a message</p></div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="text-gray-300 shrink-0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3 text-center">Bottom sheet: <code class="bg-gray-100 px-1 rounded text-[10px]">rounded-t-2xl</code>, drag handle top, clean list with monochrome icons. Shown here inline as static preview.</p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         12. FORM ELEMENTS
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">12 — Form Elements</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
+
+        <!-- Search Input -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Search Input</p>
+          <div class="relative max-w-sm">
+            <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#9ca3af" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <input type="text" placeholder="Search stores, food, services..."
+              class="w-full bg-gray-100 rounded-full pl-10 pr-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-primary-200 focus:bg-white transition" />
+          </div>
+          <p class="text-[11px] text-gray-400 mt-2"><code class="bg-gray-100 px-1 rounded text-[10px]">bg-gray-100 rounded-full pl-10 py-2.5</code> — focus ring: <code class="bg-gray-100 px-1 rounded text-[10px]">focus:ring-primary-200 focus:bg-white</code></p>
+        </div>
+
+        <!-- Filter Pills -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Filter Pills</p>
+          <div class="flex flex-wrap gap-2">
+            <button class="bg-primary-600 text-white text-xs font-semibold px-3.5 py-1.5 rounded-full">All</button>
+            <button class="bg-white text-gray-600 text-xs font-medium px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-primary-300 transition">Fashion</button>
+            <button class="bg-white text-gray-600 text-xs font-medium px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-primary-300 transition">Food &amp; Drink</button>
+            <button class="bg-white text-gray-600 text-xs font-medium px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-primary-300 transition">Electronics</button>
+            <button class="bg-white text-gray-600 text-xs font-medium px-3.5 py-1.5 rounded-full border border-gray-200 hover:border-primary-300 transition">Health</button>
+          </div>
+          <p class="text-[11px] text-gray-400 mt-2">Active: <code class="bg-gray-100 px-1 rounded text-[10px]">bg-primary-600 text-white</code> — Inactive: <code class="bg-gray-100 px-1 rounded text-[10px]">bg-white border-gray-200</code></p>
+        </div>
+
+        <!-- Segmented Control -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-2">Segmented Control</p>
+          <div class="flex bg-gray-100 rounded-xl p-1 max-w-xs">
+            <button class="flex-1 bg-white rounded-lg py-2 text-xs font-semibold text-gray-800 shadow-sm">Nearby</button>
+            <button class="flex-1 py-2 text-xs font-medium text-gray-400">Popular</button>
+            <button class="flex-1 py-2 text-xs font-medium text-gray-400">New</button>
+          </div>
+          <p class="text-[11px] text-gray-400 mt-2">Container: <code class="bg-gray-100 px-1 rounded text-[10px]">bg-gray-100 rounded-xl p-1</code> — Active tab: <code class="bg-gray-100 px-1 rounded text-[10px]">bg-white rounded-lg shadow-sm font-semibold</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════
+         13. LOADING SKELETONS
+         ══════════════════════════════════ -->
+    <section>
+      <p class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-3">13 — Loading Skeletons</p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
+
+        <!-- Store card skeleton -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Store Card Skeleton</p>
+          <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex items-center gap-4">
+            <div class="w-14 h-14 bg-gray-200 rounded-full shrink-0 animate-pulse"></div>
+            <div class="flex-1 space-y-2.5">
+              <div class="h-4 bg-gray-200 rounded-full w-3/4 animate-pulse"></div>
+              <div class="flex gap-2">
+                <div class="h-3 bg-gray-200 rounded-full w-16 animate-pulse"></div>
+                <div class="h-3 bg-gray-200 rounded-full w-12 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured store card skeleton (image card) -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Image Card Skeleton</p>
+          <div class="grid grid-cols-2 gap-3 max-w-sm">
+            <div class="h-[200px] bg-gray-200 rounded-2xl animate-pulse"></div>
+            <div class="h-[200px] bg-gray-200 rounded-2xl animate-pulse"></div>
+          </div>
+        </div>
+
+        <!-- Ad banner skeleton -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Banner Skeleton</p>
+          <div class="h-[120px] bg-gray-200 rounded-2xl animate-pulse max-w-sm"></div>
+        </div>
+
+        <!-- Category grid skeleton -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Category Grid Skeleton</p>
+          <div class="grid grid-cols-3 gap-y-4 gap-x-2 max-w-xs">
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
+              <div class="h-2.5 w-12 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
+              <div class="h-2.5 w-10 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
+              <div class="h-2.5 w-14 bg-gray-200 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text block skeleton -->
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-3">Text Block Skeleton</p>
+          <div class="space-y-2.5 max-w-sm">
+            <div class="h-4 bg-gray-200 rounded-full w-full animate-pulse"></div>
+            <div class="h-4 bg-gray-200 rounded-full w-5/6 animate-pulse"></div>
+            <div class="h-4 bg-gray-200 rounded-full w-2/3 animate-pulse"></div>
+          </div>
+          <p class="text-[11px] text-gray-400 mt-3">All skeletons use <code class="bg-gray-100 px-1 rounded text-[10px]">bg-gray-200 animate-pulse</code> with the target shape's border-radius.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  <!-- end max-w-3xl -->
+
+<!-- Page Navigator -->
+<div id="page-nav" class="fixed top-4 right-4 z-[9999]">
+  <button onclick="document.getElementById('nav-panel').classList.toggle('hidden')"
+          class="w-10 h-10 bg-gray-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 transition-colors">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+    </svg>
+  </button>
+  <div id="nav-panel" class="hidden mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 w-56 overflow-hidden">
+    <div class="px-3 py-2 bg-gray-50 border-b border-gray-200">
+      <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Screen Navigator</span>
+    </div>
+    <nav class="py-1 max-h-[70vh] overflow-y-auto">
+      <a href="index.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-b border-gray-100">
+        <span class="w-5 h-5 rounded bg-gray-800 text-white text-xs flex items-center justify-center font-bold">~</span> Index
+      </a>
+      <a href="shared-layout.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-purple-500 text-white text-xs flex items-center justify-center font-bold">DS</span> Design System
+      </a>
+      <a href="01-home.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">01</span> Home
+      </a>
+      <a href="02-search-results.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">02</span> Search Results
+      </a>
+      <a href="03-store-profile.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-emerald-500 text-white text-xs flex items-center justify-center font-bold">03</span> Store Profile
+      </a>
+      <a href="04-navigation-guide.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-blue-500 text-white text-xs flex items-center justify-center font-bold">04</span> Navigation Guide
+      </a>
+      <a href="05-restroom-finder.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-amber-500 text-white text-xs flex items-center justify-center font-bold">05</span> Restroom Finder
+      </a>
+      <a href="07-mall-survey.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-gray-500 text-white text-xs flex items-center justify-center font-bold">07</span> Mall Survey
+      </a>
+      <a href="08-error-page.html" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+        <span class="w-5 h-5 rounded bg-red-500 text-white text-xs flex items-center justify-center font-bold">08</span> Error Page
+      </a>
+    </nav>
+    <div class="px-3 py-2 bg-gray-50 border-t border-gray-200 flex justify-between text-xs text-gray-400">
+      <span>MallNav v2.0</span><span>Design Studies</span>
+    </div>
+  </div>
+</div>
+<script>
+  document.querySelectorAll('#nav-panel nav a').forEach(a => {
+    if (a.getAttribute('href') === location.pathname.split('/').pop()) {
+      a.classList.add('bg-emerald-50', 'text-emerald-700', 'font-medium');
+      a.classList.remove('text-gray-600');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!document.getElementById('page-nav').contains(e.target)) {
+      document.getElementById('nav-panel').classList.add('hidden');
+    }
+  });
+</script>
+
+</body>
+</html>
